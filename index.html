@@ -31,7 +31,6 @@
     const db = firebase.firestore();
     window.auth = auth;
     window.db = db;
-    console.log('✅ Firebase ready');
   </script>
 </head>
 <body>
@@ -46,7 +45,6 @@
         <a href="#teams" class="nav-link">Teams</a>
         <a href="#achievements" class="nav-link">Achievements</a>
         <a href="tournaments.html" class="nav-link">Tournaments</a>
-        <a href="#announcement" class="nav-link">Announcement</a>
       </div>
       <div class="nav-actions">
         <div class="founder-badge">FOUNDER · MYLYKES</div>
@@ -66,19 +64,14 @@
       <p style="color:#bdb6a4;margin-top:0.5rem;">Six elite teams. One vision.</p>
     </div>
 
-    <!-- Announcement with Image Support -->
-    <section id="announcement">
-      <h2 class="section-title">TOURNAMENT ANNOUNCEMENT</h2>
-      <div style="text-align:center;background:rgba(212,175,55,0.05);border:2px solid rgba(212,175,55,0.3);border-radius:1.5rem;padding:2rem;max-width:700px;margin:0 auto;">
-        <img id="announcementImage" src="" alt="Announcement" style="display:none;width:100%;max-height:300px;object-fit:contain;border-radius:10px;margin-bottom:1rem;">
-        <i class="fas fa-bullhorn" style="font-size:2.5rem;color:#d4af37;"></i>
-        <h3 id="announcementTitle" style="color:#f5f1e6;margin-top:0.5rem;">Loading announcement...</h3>
-        <p id="announcementDesc" style="color:#999;margin:0.5rem 0;"></p>
-        <a id="announcementBtn" href="#" target="_blank" style="display:none;background:rgba(212,175,55,0.15);color:#d4af37;padding:0.7rem 1.5rem;border-radius:50px;text-decoration:none;font-weight:700;margin-top:1rem;">Register</a>
+    <!-- Announcement Banner (Image only) -->
+    <section id="announcement" style="margin:2rem 0;">
+      <div id="announcementBanner" style="text-align:center;">
+        <img id="announcementImage" src="" alt="Tournament Announcement" style="display:none;width:100%;max-height:400px;object-fit:contain;border-radius:1rem;border:2px solid rgba(212,175,55,0.3);">
       </div>
     </section>
 
-    <!-- Teams Section -->
+    <!-- Teams -->
     <section id="teams">
       <h2 class="section-title">TEAM BANNERS</h2>
       <div class="teams-grid" id="teamsGrid">
@@ -105,7 +98,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="footer">© 2025 DAKS SYSTEM · All rights reserved</footer>
+    <footer class="footer">© 2025 DAKS SYSTEM</footer>
   </div>
 
   <!-- Team Modal -->
@@ -142,29 +135,14 @@
       }
     }
 
-    // Load Announcement
+    // Load Announcement Banner (Image Only)
     async function loadAnnouncement() {
       try {
         const doc = await db.collection('content').doc('announcement').get();
-        if (doc.exists) {
-          const data = doc.data();
-          document.getElementById('announcementTitle').textContent = data.title || 'No announcement yet';
-          document.getElementById('announcementDesc').textContent = data.description || '';
-          
-          if (data.imageUrl) {
-            const img = document.getElementById('announcementImage');
-            img.src = data.imageUrl;
-            img.style.display = 'block';
-          }
-          
-          if (data.buttonText && data.buttonLink) {
-            const btn = document.getElementById('announcementBtn');
-            btn.textContent = data.buttonText;
-            btn.href = data.buttonLink;
-            btn.style.display = 'inline-block';
-          }
-        } else {
-          document.getElementById('announcementTitle').textContent = 'No announcement yet';
+        if (doc.exists && doc.data().imageUrl) {
+          const img = document.getElementById('announcementImage');
+          img.src = doc.data().imageUrl;
+          img.style.display = 'block';
         }
       } catch (error) { console.error(error); }
     }
@@ -199,9 +177,7 @@
           `;
           grid.appendChild(card);
         });
-      } catch (error) {
-        grid.innerHTML = '<p style="color:red;">Error: ' + error.message + '</p>';
-      }
+      } catch (error) { grid.innerHTML = '<p style="color:red;">Error</p>'; }
     }
 
     function openTeamModal(teamId) {
@@ -215,14 +191,14 @@
         ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:100%;height:200px;object-fit:contain;background:#0b0b0b;border-radius:10px;margin:1rem 0;">` : ''}
         <p><strong>Captain:</strong> ${team.captain}</p>
         <h3 style="color:#d4af37;margin-top:1rem;">👥 TEAM PLAYERS</h3>
-        ${members.length > 0 ? members.map((p, i) => `<div style="padding:0.5rem;background:#111;border-radius:0.3rem;margin-bottom:0.3rem;color:white;"><span style="color:#d4af37;">${i + 1}.</span> ${p}</div>`).join('') : '<p style="color:#999;">No players listed</p>'}
+        ${members.length > 0 ? members.map((p, i) => `<div style="padding:0.5rem;background:#111;border-radius:0.3rem;margin-bottom:0.3rem;color:white;"><span style="color:#d4af37;">${i + 1}.</span> ${p}</div>`).join('') : '<p style="color:#999;">No players</p>'}
       `;
       modal.style.display = 'block';
     }
 
     function closeModal() { document.getElementById('teamModal').style.display = 'none'; }
 
-    // Load Certificates - CLICKABLE
+    // Load Certificates - with margin-top 2px
     async function loadAchievements() {
       const container = document.getElementById('achievementsContainer');
       try {
@@ -236,15 +212,14 @@
           const cert = doc.data();
           const card = document.createElement('div');
           card.style.cssText = 'background:#111;border:2px solid #d4af37;border-radius:1rem;overflow:hidden;text-align:center;cursor:pointer;transition:all 0.3s;';
-          card.onmouseover = function() { this.style.transform = 'translateY(-5px)'; this.style.boxShadow = '0 10px 25px rgba(212,175,55,0.3)'; };
-          card.onmouseout = function() { this.style.transform = 'translateY(0)'; this.style.boxShadow = 'none'; };
+          card.onmouseover = function() { this.style.transform = 'translateY(-5px)'; };
+          card.onmouseout = function() { this.style.transform = 'translateY(0)'; };
           card.onclick = function() { openCertModal(cert); };
           card.innerHTML = `
-            ${cert.imageUrl ? `<img src="${cert.imageUrl}" style="width:100%;max-height:250px;object-fit:contain;background:#0b0b0b;display:block;">` : '<i class="fas fa-trophy" style="font-size:3rem;color:#d4af37;padding:2rem;"></i>'}
+            ${cert.imageUrl ? `<img src="${cert.imageUrl}" style="width:100%;max-height:250px;object-fit:contain;background:#0b0b0b;display:block;margin-top:2px;">` : ''}
             <div style="padding:1rem;">
               <h3 style="color:#d4af37;margin:0;">${cert.title}</h3>
               <p style="color:white;font-weight:700;margin:0.5rem 0 0;">🏆 ${cert.teamName}</p>
-              <p style="color:#666;font-size:0.75rem;margin:0.3rem 0 0;">👆 Click to view & download</p>
             </div>
           `;
           container.appendChild(card);
@@ -252,7 +227,6 @@
       } catch (error) { console.error(error); }
     }
 
-    // Open Certificate Modal
     function openCertModal(cert) {
       currentCertData = cert;
       document.getElementById('certModalImage').src = cert.imageUrl || '';
@@ -261,11 +235,8 @@
       document.getElementById('certModal').style.display = 'block';
     }
 
-    function closeCertModal() {
-      document.getElementById('certModal').style.display = 'none';
-    }
+    function closeCertModal() { document.getElementById('certModal').style.display = 'none'; }
 
-    // Download Certificate
     function downloadCertificate() {
       if (!currentCertData || !currentCertData.imageUrl) return;
       const link = document.createElement('a');
@@ -275,9 +246,7 @@
     }
 
     window.onclick = function(event) {
-      if (event.target.classList.contains('modal')) {
-        event.target.style.display = 'none';
-      }
+      if (event.target.classList.contains('modal')) event.target.style.display = 'none';
     }
 
     // Initialize
@@ -286,7 +255,7 @@
     loadTeams();
     loadAchievements();
 
-    // Real-time updates
+    // Real-time
     db.collection('content').doc('announcement').onSnapshot(() => loadAnnouncement());
     db.collection('teams').onSnapshot(() => loadTeams());
     db.collection('certificates').onSnapshot(() => loadAchievements());
