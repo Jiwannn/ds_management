@@ -4,10 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DAKS SYSTEM · MANAGEMENT</title>
-  <link rel="icon" type="image/png" href="DSLOGO.jpg">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="DSLOGO.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
   
@@ -18,10 +15,9 @@
 </head>
 <body>
   <div class="container">
-    <!-- Navigation -->
     <nav class="navbar">
       <div class="logo-area">
-        <img src="DSLOGO.jpg" alt="DS Logo" style="width:40px;height:40px;object-fit:contain;border-radius:8px;" onerror="this.style.display='none'">
+        <img src="DSLOGO.png" style="width:45px;height:45px;border-radius:8px;">
         <div class="logo-text">DAKS<span>.</span></div>
       </div>
       <div class="nav-links">
@@ -37,97 +33,100 @@
       </div>
     </nav>
 
-    <!-- Hero Banner -->
     <header class="hero">
-      <img src="DSBANNER.jpg" alt="Banner" style="width:100%;max-height:300px;object-fit:cover;border-radius:0 0 1rem 1rem;" onerror="this.style.display='none'">
+      <img src="DSBANNER.jpg" style="width:100%;height:400px;object-fit:cover;border-radius:0 0 1.5rem 1.5rem;">
     </header>
 
-    <!-- Hero Content -->
     <div style="text-align:center;padding:2rem;">
-      <p style="color:#c9b37e;letter-spacing:2px;text-transform:uppercase;font-size:0.8rem;">premium esports management</p>
-      <h1 style="font-size:2.5rem;font-weight:800;color:#f5f1e6;">FORGE YOUR <span style="color:#d4af37;">LEGACY</span></h1>
-      <p style="color:#bdb6a4;margin-top:0.5rem;">Six elite teams. One vision. Unstoppable excellence.</p>
-      <button onclick="scrollToSection('register')" class="cta-button" style="margin-top:1rem;">
-        <i class="fas fa-trophy"></i> Register for Tournament
-      </button>
+      <h1 style="color:#f5f1e6;">FORGE YOUR <span style="color:#d4af37;">LEGACY</span></h1>
     </div>
 
-    <!-- Teams Section -->
     <section id="teams">
       <h2 class="section-title">TEAM BANNERS</h2>
-      <div class="teams-grid" id="teamsGrid">
-        <p style="color:#999;grid-column:1/-1;text-align:center;">Loading teams...</p>
-      </div>
+      <div class="teams-grid" id="teamsGrid"></div>
     </section>
 
-    <!-- Achievements -->
-    <section id="achievements">
-      <h2 class="section-title">ACHIEVEMENTS & CERTIFICATES</h2>
-      <div class="achievements-container" id="achievementsContainer">
-        <p style="color:#999;grid-column:1/-1;text-align:center;">Loading achievements...</p>
-      </div>
-    </section>
-
-    <!-- Tournaments -->
     <section id="tournaments">
-      <h2 class="section-title">TOURNAMENT BRACKETS</h2>
-      <div class="tournament-tabs">
-        <button class="tab-btn active" onclick="switchTournament('current', event)">Current</button>
-        <button class="tab-btn" onclick="switchTournament('upcoming', event)">Upcoming</button>
-        <button class="tab-btn" onclick="switchTournament('past', event)">Past</button>
-      </div>
-      <div id="current-tournament" class="tournament-content active">
-        <div id="currentBracket"><p style="color:#999;">Loading...</p></div>
-      </div>
-      <div id="upcoming-tournament" class="tournament-content">
-        <div id="upcomingTournament"><p style="color:#999;">Loading...</p></div>
-      </div>
-      <div id="past-tournament" class="tournament-content">
-        <div id="pastTournament"><p style="color:#999;">Loading...</p></div>
-      </div>
+      <h2 class="section-title">TOURNAMENTS</h2>
+      <div id="tournamentsList"></div>
     </section>
 
-    <!-- Registration -->
     <section id="register">
-      <h2 class="section-title">TOURNAMENT REGISTRATION</h2>
-      <div class="registration-container">
-        <div class="google-form-container">
-          <div class="form-header">
-            <i class="fas fa-trophy"></i>
-            <h3>Register for Tournament</h3>
-            <p>Click the button below to register your team</p>
-          </div>
-          <a href="https://docs.google.com/forms/d/1hhS8IsiMIJGG_-Xv9SyOH_R9wcWcnhMHddG3Gvohi8A/edit" target="_blank" class="google-form-btn">
-            <i class="fab fa-google"></i> Register Now
-          </a>
-        </div>
-      </div>
+      <h2 class="section-title">REGISTRATION</h2>
+      <a href="https://docs.google.com/forms/d/1hhS8IsiMIJGG_-Xv9SyOH_R9wcWcnhMHddG3Gvohi8A/edit" target="_blank" class="google-form-btn">Register Now</a>
     </section>
 
-    <!-- Founder -->
-    <div class="founder-section">
-      <div class="founder-avatar"><i class="fas fa-star"></i></div>
-      <div class="founder-text">
-        <h2>MYLYKES <span class="founder-name">· FOUNDER</span></h2>
-        <p>"True leadership is measured by the strength of the teams you empower."</p>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-      <div>© 2025 DAKS SYSTEM · All rights reserved</div>
-    </footer>
+    <footer class="footer">© 2025 DAKS SYSTEM</footer>
   </div>
 
-  <!-- Team Modal -->
-  <div id="teamModal" class="modal">
-    <div class="modal-content">
-      <span class="close-modal" onclick="closeModal()">&times;</span>
-      <div id="modalContent"></div>
-    </div>
-  </div>
+  <script>
+    // FIREBASE INIT
+    const firebaseConfig = {
+      apiKey: "AIzaSyCMKpB_BwOQ_KxwUKI9v-l3ND_n5FQQQbE",
+      authDomain: "dsmanagement-bb22c.firebaseapp.com",
+      projectId: "dsmanagement-bb22c",
+      storageBucket: "dsmanagement-bb22c.firebasestorage.app",
+      messagingSenderId: "917825703936",
+      appId: "1:917825703936:web:657a3024ef2a66580d48e5"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
 
-  <script src="firebase-config.js"></script>
-  <script src="script.js"></script>
+    // CHECK SESSION
+    const session = localStorage.getItem('daksSystemSession');
+    if (session) {
+      document.getElementById('adminPanelBtn').style.display = 'flex';
+      document.getElementById('loginBtn').style.display = 'none';
+    }
+
+    // LOAD TEAMS
+    db.collection('teams').get().then(snapshot => {
+      const grid = document.getElementById('teamsGrid');
+      if (snapshot.empty) {
+        grid.innerHTML = '<p style="color:#999;">No teams yet</p>';
+        return;
+      }
+      grid.innerHTML = '';
+      snapshot.forEach(doc => {
+        const team = doc.data();
+        const card = document.createElement('div');
+        card.className = 'team-card';
+        card.innerHTML = `
+          <div class="banner-placeholder">
+            ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:100%;height:100%;object-fit:cover;">` : '🏆'}
+          </div>
+          <div class="team-info">
+            <div class="team-name">${team.name}</div>
+            <p style="color:#999;">Captain: ${team.captain}</p>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }).catch(error => {
+      document.getElementById('teamsGrid').innerHTML = '<p style="color:red;">Error: ' + error.message + '</p>';
+    });
+
+    // REAL-TIME UPDATE
+    db.collection('teams').onSnapshot(snapshot => {
+      const grid = document.getElementById('teamsGrid');
+      grid.innerHTML = '';
+      snapshot.forEach(doc => {
+        const team = doc.data();
+        const card = document.createElement('div');
+        card.className = 'team-card';
+        card.innerHTML = `
+          <div class="banner-placeholder">
+            ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:100%;height:100%;object-fit:cover;">` : '🏆'}
+          </div>
+          <div class="team-info">
+            <div class="team-name">${team.name}</div>
+            <p style="color:#999;">Captain: ${team.captain}</p>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    });
+  </script>
 </body>
 </html>
