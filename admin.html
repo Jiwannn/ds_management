@@ -88,10 +88,6 @@
             <i class="fas fa-certificate stat-icon"></i>
             <div class="stat-info"><h3 id="totalCertificates">0</h3><p>Certificates</p></div>
           </div>
-          <div class="stat-card">
-            <i class="fas fa-trophy stat-icon"></i>
-            <div class="stat-info"><h3 id="totalTournaments">0</h3><p>Tournaments</p></div>
-          </div>
         </div>
       </section>
 
@@ -102,7 +98,7 @@
           <button class="btn-primary" onclick="openTeamModal()"><i class="fas fa-plus"></i> Add Team</button>
         </div>
         <table class="admin-table">
-          <thead><tr><th>Name</th><th>Captain</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Banner</th><th>Name</th><th>Captain</th><th>Actions</th></tr></thead>
           <tbody id="teamsTableBody"></tbody>
         </table>
       </section>
@@ -110,7 +106,7 @@
       <!-- Certificates -->
       <section id="certificates" class="admin-section">
         <div class="section-header">
-          <h2>Certificate Management</h2>
+          <h2>Certificates</h2>
           <button class="btn-primary" onclick="openCertificateModal()"><i class="fas fa-plus"></i> Upload Certificate</button>
         </div>
         <div class="certificates-grid" id="certificatesGrid"></div>
@@ -119,23 +115,33 @@
       <!-- Tournaments -->
       <section id="tournaments" class="admin-section">
         <div class="section-header">
-          <h2>Tournament Management</h2>
-          <button class="btn-primary" onclick="openTournamentModal()"><i class="fas fa-plus"></i> Create Tournament</button>
+          <h2>Tournaments</h2>
+          <button class="btn-primary" onclick="openTournamentModal()"><i class="fas fa-plus"></i> Create</button>
         </div>
         <div class="tournaments-list" id="tournamentsList"></div>
       </section>
     </main>
   </div>
 
-  <!-- Team Modal -->
+  <!-- TEAM MODAL WITH BANNER UPLOAD -->
   <div id="teamModal" class="modal">
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal('teamModal')">&times;</span>
       <h2>Add Team</h2>
       <form id="teamForm">
+        <div class="form-group">
+          <label>Team Banner Logo (Image Upload)</label>
+          <input type="file" id="teamLogoInput" accept="image/*" onchange="previewTeamLogo(event)" style="display:none;">
+          <img id="teamLogoPreview" style="display:none;width:100%;max-height:150px;object-fit:contain;margin-bottom:0.5rem;border-radius:10px;border:2px solid #d4af37;">
+          <button type="button" class="btn-primary" onclick="document.getElementById('teamLogoInput').click()">
+            <i class="fas fa-upload"></i> Upload Team Banner
+          </button>
+        </div>
         <div class="form-group"><label>Team Name</label><input type="text" id="teamNameInput" required></div>
         <div class="form-group"><label>Captain</label><input type="text" id="captainNameInput" required></div>
         <div class="form-group"><label>Members (comma separated)</label><input type="text" id="teamMembersInput"></div>
+        <div class="form-group"><label>Wins</label><input type="number" id="teamWinsInput" value="0"></div>
+        <div class="form-group"><label>Rating</label><input type="number" id="teamRatingInput" value="4.5" step="0.1"></div>
         <button type="submit" class="btn-primary">Save Team</button>
       </form>
     </div>
@@ -165,8 +171,8 @@
       <span class="close-modal" onclick="closeModal('tournamentModal')">&times;</span>
       <h2>Create Tournament</h2>
       <form id="tournamentForm">
-        <div class="form-group"><label>Tournament Name</label><input type="text" id="tournamentNameInput" required></div>
-        <div class="form-group"><label>Challonge URL</label><input type="url" id="challongeUrlInput" placeholder="https://challonge.com/..."></div>
+        <div class="form-group"><label>Name</label><input type="text" id="tournamentNameInput" required></div>
+        <div class="form-group"><label>Challonge URL</label><input type="url" id="challongeUrlInput"></div>
         <div class="form-group"><label>Start Date</label><input type="date" id="tournamentStartDate" required></div>
         <div class="form-group"><label>End Date</label><input type="date" id="tournamentEndDate" required></div>
         <div class="form-group">
@@ -177,15 +183,16 @@
             <option value="completed">Completed</option>
           </select>
         </div>
-        <button type="submit" class="btn-primary">Create Tournament</button>
+        <button type="submit" class="btn-primary">Create</button>
       </form>
     </div>
   </div>
 
   <script>
+    let teamLogoData = null;
     let certImageData = null;
 
-    // Check session
+    // Session check
     const session = localStorage.getItem('daksSystemSession');
     if (!session) {
       window.location.replace('login.html');
@@ -193,81 +200,20 @@
       document.getElementById('adminName').textContent = JSON.parse(session).name || 'Admin';
     }
 
-    // LOAD TEAMS
-    function loadTeams() {
-      db.collection('teams').get().then(snapshot => {
-        document.getElementById('totalTeams').textContent = snapshot.size;
-        const tbody = document.getElementById('teamsTableBody');
-        tbody.innerHTML = '';
-        if (snapshot.empty) {
-          tbody.innerHTML = '<tr><td colspan="3" style="color:#999;">No teams</td></tr>';
-          return;
-        }
-        snapshot.forEach(doc => {
-          const team = doc.data();
-          tbody.innerHTML += `
-            <tr>
-              <td style="color:white;">${team.name}</td>
-              <td style="color:#999;">${team.captain}</td>
-              <td><button class="btn-danger" onclick="deleteTeam('${doc.id}')">Delete</button></td>
-            </tr>
-          `;
-        });
-      });
+    // PREVIEW TEAM LOGO
+    function previewTeamLogo(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        teamLogoData = e.target.result;
+        document.getElementById('teamLogoPreview').src = e.target.result;
+        document.getElementById('teamLogoPreview').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
     }
 
-    // LOAD CERTIFICATES
-    function loadCertificates() {
-      db.collection('certificates').get().then(snapshot => {
-        document.getElementById('totalCertificates').textContent = snapshot.size;
-        const grid = document.getElementById('certificatesGrid');
-        grid.innerHTML = '';
-        if (snapshot.empty) {
-          grid.innerHTML = '<p style="color:#999;">No certificates</p>';
-          return;
-        }
-        snapshot.forEach(doc => {
-          const cert = doc.data();
-          grid.innerHTML += `
-            <div class="certificate-card">
-              ${cert.imageUrl ? `<img src="${cert.imageUrl}" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;margin-bottom:1rem;">` : '<i class="fas fa-certificate certificate-icon"></i>'}
-              <h3 class="certificate-title">${cert.title}</h3>
-              <p class="certificate-team">${cert.teamName}</p>
-              <button class="btn-danger" onclick="deleteCertificate('${doc.id}')">Delete</button>
-            </div>
-          `;
-        });
-      });
-    }
-
-    // LOAD TOURNAMENTS
-    function loadTournaments() {
-      db.collection('tournaments').get().then(snapshot => {
-        document.getElementById('totalTournaments').textContent = snapshot.size;
-        const list = document.getElementById('tournamentsList');
-        list.innerHTML = '';
-        if (snapshot.empty) {
-          list.innerHTML = '<p style="color:#999;">No tournaments created yet</p>';
-          return;
-        }
-        snapshot.forEach(doc => {
-          const t = doc.data();
-          list.innerHTML += `
-            <div class="tournament-card">
-              <div class="tournament-info">
-                <h3>🏆 ${t.name}</h3>
-                <p>${t.startDate} - ${t.endDate}</p>
-                ${t.challongeUrl ? `<p style="color:#d4af37;font-size:0.8rem;">🔗 ${t.challongeUrl}</p>` : ''}
-              </div>
-              <span class="tournament-status status-${t.status}">${t.status}</span>
-              <button class="btn-danger" onclick="deleteTournament('${doc.id}')">Delete</button>
-            </div>
-          `;
-        });
-      });
-    }
-
-    // Preview certificate
+    // PREVIEW CERTIFICATE
     function previewCertImage(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -280,20 +226,47 @@
       reader.readAsDataURL(file);
     }
 
-    // SAVE TEAM
+    // LOAD TEAMS WITH BANNERS
+    function loadTeams() {
+      db.collection('teams').get().then(snapshot => {
+        document.getElementById('totalTeams').textContent = snapshot.size;
+        const tbody = document.getElementById('teamsTableBody');
+        tbody.innerHTML = '';
+        if (snapshot.empty) {
+          tbody.innerHTML = '<tr><td colspan="4" style="color:#999;">No teams</td></tr>';
+          return;
+        }
+        snapshot.forEach(doc => {
+          const team = doc.data();
+          tbody.innerHTML += `
+            <tr>
+              <td>${team.logoUrl ? `<img src="${team.logoUrl}" style="width:50px;height:50px;object-fit:cover;border-radius:10px;">` : '🏆'}</td>
+              <td style="color:white;">${team.name}</td>
+              <td style="color:#999;">${team.captain}</td>
+              <td><button class="btn-danger" onclick="deleteTeam('${doc.id}')">Delete</button></td>
+            </tr>
+          `;
+        });
+      });
+    }
+
+    // SAVE TEAM WITH BANNER
     document.getElementById('teamForm').addEventListener('submit', function(e) {
       e.preventDefault();
       db.collection('teams').add({
         name: document.getElementById('teamNameInput').value,
         captain: document.getElementById('captainNameInput').value,
         members: document.getElementById('teamMembersInput').value.split(',').map(m => m.trim()).filter(m => m),
-        wins: 0,
-        rating: 4.5,
+        wins: parseInt(document.getElementById('teamWinsInput').value) || 0,
+        rating: parseFloat(document.getElementById('teamRatingInput').value) || 4.5,
+        logoUrl: teamLogoData || null,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       }).then(() => {
         closeModal('teamModal');
-        alert('✅ Team added!');
+        alert('✅ Team added with banner!');
         this.reset();
+        teamLogoData = null;
+        document.getElementById('teamLogoPreview').style.display = 'none';
         loadTeams();
       });
     });
@@ -309,8 +282,8 @@
       }).then(() => {
         closeModal('certificateModal');
         alert('✅ Certificate uploaded!');
-        certImageData = null;
         this.reset();
+        certImageData = null;
         document.getElementById('certImagePreview').style.display = 'none';
         loadCertificates();
       });
@@ -334,20 +307,78 @@
       });
     });
 
+    // LOAD CERTIFICATES
+    function loadCertificates() {
+      db.collection('certificates').get().then(snapshot => {
+        document.getElementById('totalCertificates').textContent = snapshot.size;
+        const grid = document.getElementById('certificatesGrid');
+        grid.innerHTML = '';
+        if (snapshot.empty) {
+          grid.innerHTML = '<p style="color:#999;">No certificates</p>';
+          return;
+        }
+        snapshot.forEach(doc => {
+          const cert = doc.data();
+          grid.innerHTML += `
+            <div class="certificate-card">
+              ${cert.imageUrl ? `<img src="${cert.imageUrl}" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;margin-bottom:1rem;">` : ''}
+              <h3 class="certificate-title">${cert.title}</h3>
+              <p class="certificate-team">${cert.teamName}</p>
+              <button class="btn-danger" onclick="deleteCertificate('${doc.id}')">Delete</button>
+            </div>
+          `;
+        });
+      });
+    }
+
+    // LOAD TOURNAMENTS
+    function loadTournaments() {
+      db.collection('tournaments').get().then(snapshot => {
+        const list = document.getElementById('tournamentsList');
+        list.innerHTML = '';
+        if (snapshot.empty) {
+          list.innerHTML = '<p style="color:#999;">No tournaments</p>';
+          return;
+        }
+        snapshot.forEach(doc => {
+          const t = doc.data();
+          list.innerHTML += `
+            <div class="tournament-card">
+              <div class="tournament-info">
+                <h3>🏆 ${t.name}</h3>
+                <p>${t.startDate} - ${t.endDate}</p>
+              </div>
+              <span class="tournament-status status-${t.status}">${t.status}</span>
+              <button class="btn-danger" onclick="deleteTournament('${doc.id}')">Delete</button>
+            </div>
+          `;
+        });
+      });
+    }
+
     // DELETE FUNCTIONS
     function deleteTeam(id) { if (confirm('Delete team?')) db.collection('teams').doc(id).delete().then(() => loadTeams()); }
     function deleteCertificate(id) { if (confirm('Delete certificate?')) db.collection('certificates').doc(id).delete().then(() => loadCertificates()); }
     function deleteTournament(id) { if (confirm('Delete tournament?')) db.collection('tournaments').doc(id).delete().then(() => loadTournaments()); }
 
     // MODAL FUNCTIONS
-    function openTeamModal() { document.getElementById('teamModal').style.display = 'block'; document.getElementById('teamForm').reset(); }
-    function openCertificateModal() { 
-      document.getElementById('certificateModal').style.display = 'block'; 
-      document.getElementById('certificateForm').reset(); 
-      certImageData = null; 
-      document.getElementById('certImagePreview').style.display = 'none'; 
+    function openTeamModal() {
+      document.getElementById('teamModal').style.display = 'block';
+      document.getElementById('teamForm').reset();
+      teamLogoData = null;
+      document.getElementById('teamLogoPreview').style.display = 'none';
+      document.getElementById('teamLogoInput').value = '';
     }
-    function openTournamentModal() { document.getElementById('tournamentModal').style.display = 'block'; document.getElementById('tournamentForm').reset(); }
+    function openCertificateModal() {
+      document.getElementById('certificateModal').style.display = 'block';
+      document.getElementById('certificateForm').reset();
+      certImageData = null;
+      document.getElementById('certImagePreview').style.display = 'none';
+    }
+    function openTournamentModal() {
+      document.getElementById('tournamentModal').style.display = 'block';
+      document.getElementById('tournamentForm').reset();
+    }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     // SECTION SWITCHING
@@ -366,7 +397,7 @@
       window.location.replace('login.html');
     }
 
-    // INITIALIZE ALL
+    // INITIALIZE
     loadTeams();
     loadCertificates();
     loadTournaments();
