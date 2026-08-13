@@ -37,127 +37,239 @@
 </head>
 <body>
   <div class="container">
+    <!-- Navigation -->
     <nav class="navbar">
       <div class="logo-area">
+        <img src="images/logo.png" alt="DS Logo" class="ds-logo-img" onerror="this.style.display='none'">
         <div class="logo-text">DAKS<span>.</span></div>
       </div>
       <div class="nav-links">
         <a href="#teams" class="nav-link">Teams</a>
         <a href="#achievements" class="nav-link">Achievements</a>
         <a href="#tournaments" class="nav-link">Tournaments</a>
+        <a href="#register" class="nav-link">Register</a>
       </div>
       <div class="nav-actions">
-        <div class="founder-badge">FOUNDER · MYLYKES</div>
-        <a href="login.html" class="login-link">Admin</a>
+        <div class="founder-badge">
+          <i class="fas fa-shield-alt"></i> FOUNDER · MYLYKES
+        </div>
+        <a href="admin.html" class="login-link" id="adminPanelBtn" style="display:none;">
+          <i class="fas fa-user-shield"></i> Admin Panel
+        </a>
+        <a href="login.html" class="login-link" id="loginBtn">
+          <i class="fas fa-user-shield"></i> Admin
+        </a>
       </div>
     </nav>
 
+    <!-- Hero Banner -->
     <header class="hero">
-      <img src="DSBANNER.jpg" alt="Banner" style="width:100%;max-height:300px;object-fit:cover;border-radius:0 0 1rem 1rem;">
+      <div class="hero-banner">
+        <img src="DSBANNER.jpg" alt="DAKS SYSTEM Banner" class="hero-banner-image" onerror="this.style.display='none'">
+      </div>
     </header>
 
-    <div style="text-align:center;padding:2rem;">
-      <h1>FORGE YOUR <span style="color:#d4af37;">LEGACY</span></h1>
+    <!-- Hero Content -->
+    <div class="hero-content-below">
+      <div class="hero-text-center">
+        <div class="section-sub" id="heroSubtitle">premium esports management</div>
+        <h1 class="hero-heading"><span id="heroTitle">FORGE YOUR</span> <span class="gold-text" id="heroHighlight">LEGACY</span></h1>
+        <p class="hero-description" id="heroDescription">Six elite teams. One vision. Unstoppable excellence.</p>
+        <button class="cta-button" onclick="scrollToSection('register')">
+          <i class="fas fa-trophy"></i> <span id="heroButtonText">Register for Tournament</span>
+        </button>
+      </div>
     </div>
 
-    <!-- TEAMS -->
+    <!-- Teams Section -->
     <section id="teams">
       <h2 class="section-title">TEAM BANNERS</h2>
-      <div id="teamsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem;">
-        <p style="color:#999;">Loading teams...</p>
+      <div class="teams-grid" id="teamsGrid">
+        <p style="color:#999;grid-column:1/-1;text-align:center;">Loading teams...</p>
       </div>
     </section>
 
-    <!-- TOURNAMENTS -->
-    <section id="tournaments" style="margin-top:2rem;">
-      <h2 class="section-title">TOURNAMENTS</h2>
-      <div id="tournamentsList">
-        <p style="color:#999;">Loading tournaments...</p>
+    <!-- Achievements -->
+    <section id="achievements">
+      <h2 class="section-title">ACHIEVEMENTS</h2>
+      <div class="achievements-container" id="achievementsContainer">
+        <p style="color:#999;grid-column:1/-1;text-align:center;">Loading...</p>
       </div>
     </section>
 
-    <footer style="text-align:center;padding:2rem;color:#666;">
-      © 2025 DAKS SYSTEM
+    <!-- Tournaments -->
+    <section id="tournaments">
+      <h2 class="section-title">TOURNAMENT BRACKETS</h2>
+      <div class="tournament-tabs">
+        <button class="tab-btn active" onclick="switchTournament('current', event)">Current</button>
+        <button class="tab-btn" onclick="switchTournament('upcoming', event)">Upcoming</button>
+        <button class="tab-btn" onclick="switchTournament('past', event)">Past</button>
+      </div>
+      <div id="current-tournament" class="tournament-content active">
+        <div id="currentBracket"><p style="color:#999;">Loading...</p></div>
+      </div>
+      <div id="upcoming-tournament" class="tournament-content">
+        <div id="upcomingTournament"><p style="color:#999;">Loading...</p></div>
+      </div>
+      <div id="past-tournament" class="tournament-content">
+        <div id="pastTournament"><p style="color:#999;">Loading...</p></div>
+      </div>
+    </section>
+
+    <!-- Registration -->
+    <section id="register">
+      <h2 class="section-title">TOURNAMENT REGISTRATION</h2>
+      <div class="registration-container">
+        <a href="https://docs.google.com/forms/d/1hhS8IsiMIJGG_-Xv9SyOH_R9wcWcnhMHddG3Gvohi8A/edit" target="_blank" class="google-form-btn">
+          <i class="fab fa-google"></i> Register for Tournament
+        </a>
+      </div>
+    </section>
+
+    <!-- Founder -->
+    <div class="founder-section">
+      <div class="founder-avatar"><i class="fas fa-star"></i></div>
+      <div class="founder-text">
+        <h2>MYLYKES <span class="founder-name">· FOUNDER</span></h2>
+        <p>"True leadership is measured by the strength of the teams you empower."</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div>© 2025 DAKS SYSTEM · All rights reserved</div>
+      <div>Premium Management & Esports Organization</div>
     </footer>
   </div>
 
+  <!-- Team Modal -->
+  <div id="teamModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal()">&times;</span>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
   <script>
-    // LOAD TEAMS
+    // Check session for admin button
+    function checkSession() {
+      const session = localStorage.getItem('daksSystemSession');
+      if (session) {
+        document.getElementById('adminPanelBtn').style.display = 'flex';
+        document.getElementById('loginBtn').style.display = 'none';
+      }
+    }
+    
+    // Load teams
     async function loadTeams() {
-      console.log('📊 Loading teams...');
       const grid = document.getElementById('teamsGrid');
       
       try {
         const snapshot = await db.collection('teams').get();
-        console.log('Teams found:', snapshot.size);
+        console.log('✅ Teams found:', snapshot.size);
         
         if (snapshot.empty) {
-          grid.innerHTML = '<p style="color:#999;text-align:center;">No teams in database</p>';
+          grid.innerHTML = '<p style="color:#999;grid-column:1/-1;text-align:center;">No teams yet</p>';
           return;
         }
         
         grid.innerHTML = '';
         snapshot.forEach(doc => {
           const team = doc.data();
-          console.log('Team:', team.name);
-          
           const card = document.createElement('div');
-          card.style.cssText = 'background:#1a1a1a;border:1px solid #d4af37;border-radius:0.5rem;overflow:hidden;cursor:pointer;';
+          card.className = 'team-card';
+          card.style.cursor = 'pointer';
+          card.onclick = function() {
+            alert('Team: ' + team.name + '\nCaptain: ' + team.captain);
+          };
           card.innerHTML = `
-            <div style="height:150px;background:#111;display:flex;align-items:center;justify-content:center;border-bottom:2px solid #d4af37;">
+            <div class="banner-placeholder" style="height:180px;background:#111;display:flex;align-items:center;justify-content:center;border-bottom:2px solid #d4af37;">
               ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:100%;height:100%;object-fit:cover;">` : '<span style="font-size:3rem;">🏆</span>'}
             </div>
             <div style="padding:1rem;text-align:center;">
               <h3 style="color:#d4af37;margin:0;">${team.name}</h3>
-              <p style="color:#999;margin:0.5rem 0;">Captain: ${team.captain}</p>
-              <p style="color:#d4af37;margin:0;">Wins: ${team.wins || 0} | Rating: ${team.rating || 0}</p>
+              <p style="color:#999;margin:0.3rem 0;">Captain: ${team.captain}</p>
+              <p style="color:#d4af37;margin:0;">🏆 ${team.wins || 0} | ⭐ ${team.rating || 0}</p>
             </div>
           `;
           grid.appendChild(card);
         });
-        
-        console.log('✅ Teams displayed');
       } catch (error) {
         console.error('Error:', error.message);
-        grid.innerHTML = '<p style="color:red;">Error: ' + error.message + '</p>';
+        grid.innerHTML = '<p style="color:red;grid-column:1/-1;text-align:center;">Error: ' + error.message + '</p>';
       }
     }
     
-    // LOAD TOURNAMENTS
+    // Load tournaments
     async function loadTournaments() {
-      console.log('📊 Loading tournaments...');
-      const list = document.getElementById('tournamentsList');
+      const pastDiv = document.getElementById('pastTournament');
+      const upcomingDiv = document.getElementById('upcomingTournament');
+      const currentBracket = document.getElementById('currentBracket');
       
       try {
         const snapshot = await db.collection('tournaments').get();
-        console.log('Tournaments found:', snapshot.size);
+        console.log('✅ Tournaments found:', snapshot.size);
         
         if (snapshot.empty) {
-          list.innerHTML = '<p style="color:#999;text-align:center;">No tournaments</p>';
+          pastDiv.innerHTML = '<p style="color:#999;">No tournaments</p>';
           return;
         }
         
-        list.innerHTML = '';
-        snapshot.forEach(doc => {
-          const t = doc.data();
-          console.log('Tournament:', t.name);
-          
-          const card = document.createElement('div');
-          card.style.cssText = 'background:#1a1a1a;border:1px solid #d4af37;border-radius:0.5rem;padding:1rem;margin-bottom:0.5rem;';
-          card.innerHTML = `
-            <h3 style="color:#d4af37;margin:0;">🏆 ${t.name}</h3>
-            <p style="color:#999;margin:0.5rem 0;">${t.startDate || 'TBD'} - ${t.endDate || 'TBD'}</p>
-            <p style="color:#999;margin:0;">Status: ${t.status || 'unknown'}</p>
-          `;
-          list.appendChild(card);
-        });
+        const tournaments = [];
+        snapshot.forEach(doc => tournaments.push({ id: doc.id, ...doc.data() }));
+        
+        // Past
+        const completed = tournaments.filter(t => t.status === 'completed');
+        if (completed.length > 0) {
+          pastDiv.innerHTML = completed.map(t => `
+            <div style="background:#1a1a1a;border:1px solid #d4af37;border-radius:0.5rem;padding:1rem;margin-bottom:0.5rem;">
+              <h3 style="color:#d4af37;">🏆 ${t.name}</h3>
+              <p style="color:#999;">${t.startDate} - ${t.endDate}</p>
+            </div>
+          `).join('');
+        } else {
+          pastDiv.innerHTML = '<p style="color:#999;">No past tournaments</p>';
+        }
+        
+        // Upcoming
+        const upcoming = tournaments.filter(t => t.status === 'upcoming');
+        if (upcoming.length > 0) {
+          upcomingDiv.innerHTML = `<h3 style="color:#d4af37;">${upcoming[0].name}</h3><p style="color:#999;">Starts: ${upcoming[0].startDate}</p>`;
+        } else {
+          upcomingDiv.innerHTML = '<p style="color:#999;">No upcoming</p>';
+        }
+        
+        // Current
+        const active = tournaments.filter(t => t.status === 'active');
+        if (active.length > 0 && active[0].challongeUrl) {
+          let url = active[0].challongeUrl.replace(/\/$/, '');
+          if (!url.includes('/module')) url += '/module';
+          currentBracket.innerHTML = `<iframe src="${url}" width="100%" height="500" frameborder="0" style="background:white;border-radius:0.5rem;"></iframe>`;
+        } else {
+          currentBracket.innerHTML = '<p style="color:#999;">No active bracket</p>';
+        }
       } catch (error) {
         console.error('Error:', error.message);
-        list.innerHTML = '<p style="color:red;">Error: ' + error.message + '</p>';
       }
     }
     
-    // Run on load
+    function closeModal() {
+      document.getElementById('teamModal').style.display = 'none';
+    }
+    
+    function scrollToSection(id) {
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function switchTournament(tab, event) {
+      document.querySelectorAll('.tournament-content').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tab + '-tournament').classList.add('active');
+      if (event && event.target) event.target.classList.add('active');
+    }
+    
+    // Initialize
+    checkSession();
     loadTeams();
     loadTournaments();
   </script>
