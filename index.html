@@ -39,7 +39,7 @@
     <!-- Navigation -->
     <nav class="navbar">
       <div class="logo-area">
-        <img src="DSLOGO.jpg" alt="DS Logo" class="ds-logo-img" onerror="this.style.display='none'">
+        <img src="DSLOGO.jpg" alt="DS Logo" style="width:45px;height:45px;object-fit:contain;border-radius:8px;" onerror="this.style.display='none'">
         <div class="logo-text">DAKS<span>.</span></div>
       </div>
       <div class="nav-links">
@@ -62,9 +62,9 @@
 
     <!-- Hero Content -->
     <div style="text-align:center;padding:2rem;">
-      <h1 style="color:#f5f1e6;">FORGE YOUR <span style="color:#d4af37;">LEGACY</span></h1>
-      <p style="color:#bdb6a4;">Six elite teams. One vision.</p>
-      <button onclick="scrollToSection('register')" class="cta-button">
+      <h1 style="color:#f5f1e6;font-size:2.5rem;">FORGE YOUR <span style="color:#d4af37;">LEGACY</span></h1>
+      <p style="color:#bdb6a4;margin-top:0.5rem;">Six elite teams. One vision.</p>
+      <button onclick="scrollToSection('register')" class="cta-button" style="margin-top:1rem;">
         <i class="fas fa-trophy"></i> Register for Tournament
       </button>
     </div>
@@ -104,12 +104,14 @@
       </div>
     </section>
 
-    <!-- Registration -->
-    <section id="register">
-      <h2 class="section-title">TOURNAMENT REGISTRATION</h2>
-      <a href="https://docs.google.com/forms/d/1hhS8IsiMIJGG_-Xv9SyOH_R9wcWcnhMHddG3Gvohi8A/edit" target="_blank" class="google-form-btn">
-        <i class="fab fa-google"></i> Register Now
-      </a>
+    <!-- Registration - CENTERED -->
+    <section id="register" style="text-align:center;">
+      <h2 class="section-title" style="text-align:left;">TOURNAMENT REGISTRATION</h2>
+      <div style="display:flex;justify-content:center;align-items:center;min-height:200px;">
+        <a href="https://docs.google.com/forms/d/1hhS8IsiMIJGG_-Xv9SyOH_R9wcWcnhMHddG3Gvohi8A/edit" target="_blank" class="google-form-btn" style="display:inline-flex;margin:0 auto;">
+          <i class="fab fa-google"></i> Register for Tournament
+        </a>
+      </div>
     </section>
 
     <!-- Founder -->
@@ -144,7 +146,6 @@
       }
     }
 
-    // Load teams
     async function loadTeams() {
       const grid = document.getElementById('teamsGrid');
       try {
@@ -207,7 +208,6 @@
       }
     }
 
-    // Load achievements
     async function loadAchievements() {
       const container = document.getElementById('achievementsContainer');
       try {
@@ -235,7 +235,6 @@
       }
     }
 
-    // Load tournaments with CHALLONGE IFRAME
     async function loadTournaments() {
       const pastDiv = document.getElementById('pastTournament');
       const upcomingDiv = document.getElementById('upcomingTournament');
@@ -243,7 +242,6 @@
       
       try {
         const snapshot = await db.collection('tournaments').get();
-        
         if (snapshot.empty) {
           pastDiv.innerHTML = '<p style="color:#999;">No tournaments</p>';
           upcomingDiv.innerHTML = '<p style="color:#999;">No upcoming</p>';
@@ -254,7 +252,6 @@
         const tournaments = [];
         snapshot.forEach(doc => tournaments.push({ id: doc.id, ...doc.data() }));
         
-        // PAST - Show Challonge iframe
         const completed = tournaments.filter(t => t.status === 'completed');
         if (completed.length > 0) {
           pastDiv.innerHTML = completed.map(t => {
@@ -274,11 +271,9 @@
           }).join('');
         }
         
-        // UPCOMING
         const upcoming = tournaments.filter(t => t.status === 'upcoming');
         upcomingDiv.innerHTML = upcoming.length > 0 ? `<h3 style="color:#d4af37;">${upcoming[0].name}</h3><p style="color:#999;">Starts: ${upcoming[0].startDate}</p>` : '<p style="color:#999;">No upcoming</p>';
         
-        // CURRENT - Show Challonge iframe
         const active = tournaments.filter(t => t.status === 'active');
         if (active.length > 0 && active[0].challongeUrl) {
           let url = active[0].challongeUrl.trim().replace(/\/$/, '');
