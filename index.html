@@ -57,23 +57,19 @@
 
     <!-- Hero Banner -->
     <header class="hero">
-      <div class="hero-banner">
-        <img src="DSBANNER.jpg" alt="DAKS SYSTEM Banner" class="hero-banner-image" onerror="this.style.display='none'">
-      </div>
+      <img src="DSBANNER.jpg" alt="Banner" style="width:100%;height:400px;object-fit:cover;border-radius:0 0 1.5rem 1.5rem;" onerror="this.style.display='none'">
     </header>
 
     <!-- Hero Content -->
-    <div class="hero-content-below">
-      <div class="hero-text-center">
-        <h1 class="hero-heading">FORGE YOUR <span class="gold-text">LEGACY</span></h1>
-        <p class="hero-description">Six elite teams. One vision.</p>
-        <button class="cta-button" onclick="scrollToSection('register')">
-          <i class="fas fa-trophy"></i> Register for Tournament
-        </button>
-      </div>
+    <div style="text-align:center;padding:2rem;">
+      <h1 style="color:#f5f1e6;">FORGE YOUR <span style="color:#d4af37;">LEGACY</span></h1>
+      <p style="color:#bdb6a4;">Six elite teams. One vision.</p>
+      <button onclick="scrollToSection('register')" class="cta-button">
+        <i class="fas fa-trophy"></i> Register for Tournament
+      </button>
     </div>
 
-    <!-- Teams Section -->
+    <!-- Teams -->
     <section id="teams">
       <h2 class="section-title">TEAM BANNERS</h2>
       <div class="teams-grid" id="teamsGrid">
@@ -126,12 +122,10 @@
     </div>
 
     <!-- Footer -->
-    <footer class="footer">
-      <div>© 2025 DAKS SYSTEM</div>
-    </footer>
+    <footer class="footer">© 2025 DAKS SYSTEM</footer>
   </div>
 
-  <!-- TEAM MODAL -->
+  <!-- Team Modal -->
   <div id="teamModal" class="modal" style="display:none;">
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal()">&times;</span>
@@ -150,31 +144,24 @@
       }
     }
 
-    // Load teams with GLOSSY effect
+    // Load teams
     async function loadTeams() {
       const grid = document.getElementById('teamsGrid');
       try {
         const snapshot = await db.collection('teams').get();
-        
         if (snapshot.empty) {
           grid.innerHTML = '<p style="color:#999;">No teams yet</p>';
           return;
         }
-        
         allTeams = [];
         grid.innerHTML = '';
-        
         snapshot.forEach(doc => {
           const team = { id: doc.id, ...doc.data() };
           allTeams.push(team);
-          
           const card = document.createElement('div');
           card.className = 'team-card';
           card.style.cursor = 'pointer';
-          card.onclick = function() {
-            openTeamModal(team.id);
-          };
-          
+          card.onclick = function() { openTeamModal(team.id); };
           card.innerHTML = `
             <div class="banner-placeholder">
               ${team.logoUrl ? `<img src="${team.logoUrl}">` : '🏆'}
@@ -192,30 +179,21 @@
       }
     }
 
-    // OPEN TEAM MODAL
     function openTeamModal(teamId) {
       const team = allTeams.find(t => t.id === teamId);
       if (!team) return;
-      
       const modal = document.getElementById('teamModal');
       const content = document.getElementById('modalContent');
       const members = team.members || [];
-      
       content.innerHTML = `
-        <h2 style="color:#d4af37;margin-bottom:1rem;">${team.name}</h2>
-        ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:100%;height:200px;object-fit:contain;background:#0b0b0b;border-radius:10px;margin-bottom:1rem;">` : ''}
+        <h2 style="color:#d4af37;">${team.name}</h2>
+        ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:100%;height:200px;object-fit:contain;background:#0b0b0b;border-radius:10px;margin:1rem 0;">` : ''}
         <p><strong>Captain:</strong> ${team.captain}</p>
         <p><strong>Wins:</strong> ${team.wins || 0}</p>
-        <p><strong>Rating:</strong> ⭐ ${team.rating || 0}/5.0</p>
+        <p><strong>Rating:</strong> ⭐ ${team.rating || 0}</p>
         <h3 style="color:#d4af37;margin-top:1rem;">👥 TEAM PLAYERS</h3>
-        ${members.length > 0 ? members.map((player, index) => `
-          <div style="display:flex;gap:0.5rem;padding:0.5rem;background:#111;border-radius:0.3rem;margin-bottom:0.3rem;">
-            <span style="color:#d4af37;font-weight:700;">${index + 1}.</span>
-            <span style="color:white;">${player}</span>
-          </div>
-        `).join('') : '<p style="color:#999;">No players listed</p>'}
+        ${members.length > 0 ? members.map((p, i) => `<div style="padding:0.5rem;background:#111;border-radius:0.3rem;margin-bottom:0.3rem;color:white;"><span style="color:#d4af37;">${i + 1}.</span> ${p}</div>`).join('') : '<p style="color:#999;">No players</p>'}
       `;
-      
       modal.style.display = 'block';
     }
 
@@ -229,6 +207,7 @@
       }
     }
 
+    // Load achievements
     async function loadAchievements() {
       const container = document.getElementById('achievementsContainer');
       try {
@@ -256,6 +235,7 @@
       }
     }
 
+    // Load tournaments with CHALLONGE IFRAME
     async function loadTournaments() {
       const pastDiv = document.getElementById('pastTournament');
       const upcomingDiv = document.getElementById('upcomingTournament');
@@ -263,20 +243,57 @@
       
       try {
         const snapshot = await db.collection('tournaments').get();
+        
         if (snapshot.empty) {
           pastDiv.innerHTML = '<p style="color:#999;">No tournaments</p>';
+          upcomingDiv.innerHTML = '<p style="color:#999;">No upcoming</p>';
+          currentBracket.innerHTML = '<p style="color:#999;">No active</p>';
           return;
         }
         
         const tournaments = [];
         snapshot.forEach(doc => tournaments.push({ id: doc.id, ...doc.data() }));
         
+        // PAST - Show Challonge iframe
         const completed = tournaments.filter(t => t.status === 'completed');
-        pastDiv.innerHTML = completed.length > 0 ? completed.map(t => `
-          <div style="background:#1a1a1a;border:1px solid #d4af37;border-radius:0.5rem;padding:1rem;margin-bottom:0.5rem;">
-            <h3 style="color:#d4af37;">🏆 ${t.name}</h3>
-          </div>
-        `).join('') : '<p style="color:#999;">No past</p>';
+        if (completed.length > 0) {
+          pastDiv.innerHTML = completed.map(t => {
+            let url = '';
+            if (t.challongeUrl) {
+              url = t.challongeUrl.trim().replace(/\/$/, '');
+              if (!url.includes('/module')) url += '/module';
+            }
+            return `
+              <div style="background:#111;border:2px solid #d4af37;border-radius:1rem;overflow:hidden;margin-bottom:1rem;">
+                <div style="padding:0.75rem;text-align:center;border-bottom:2px solid #d4af37;background:#1a1a1a;">
+                  <h3 style="color:#d4af37;">🏆 ${t.name}</h3>
+                </div>
+                ${url ? `<iframe src="${url}" width="100%" height="500" frameborder="0" style="display:block;background:white;border:none;"></iframe>` : '<p style="color:#ff6b7a;text-align:center;padding:1rem;">No bracket URL</p>'}
+              </div>
+            `;
+          }).join('');
+        }
+        
+        // UPCOMING
+        const upcoming = tournaments.filter(t => t.status === 'upcoming');
+        upcomingDiv.innerHTML = upcoming.length > 0 ? `<h3 style="color:#d4af37;">${upcoming[0].name}</h3><p style="color:#999;">Starts: ${upcoming[0].startDate}</p>` : '<p style="color:#999;">No upcoming</p>';
+        
+        // CURRENT - Show Challonge iframe
+        const active = tournaments.filter(t => t.status === 'active');
+        if (active.length > 0 && active[0].challongeUrl) {
+          let url = active[0].challongeUrl.trim().replace(/\/$/, '');
+          if (!url.includes('/module')) url += '/module';
+          currentBracket.innerHTML = `
+            <div style="background:#111;border:2px solid #d4af37;border-radius:1rem;overflow:hidden;">
+              <div style="padding:0.75rem;text-align:center;border-bottom:2px solid #d4af37;background:#1a1a1a;">
+                <h3 style="color:#d4af37;">🏆 ${active[0].name}</h3>
+              </div>
+              <iframe src="${url}" width="100%" height="600" frameborder="0" style="display:block;background:white;border:none;"></iframe>
+            </div>
+          `;
+        } else {
+          currentBracket.innerHTML = '<p style="color:#999;">No active bracket</p>';
+        }
       } catch (error) {
         console.error(error);
       }
