@@ -65,19 +65,17 @@
         <div class="stats-grid">
           <div class="stat-card"><h3 id="totalTeams">0</h3><p>Teams</p></div>
           <div class="stat-card"><h3 id="totalCertificates">0</h3><p>Certificates</p></div>
+          <div class="stat-card"><h3 id="totalTournaments">0</h3><p>Tournaments</p></div>
         </div>
       </section>
 
-      <!-- TEAMS WITH DRAG AND DROP -->
       <section id="teams" class="admin-section">
         <div class="section-header">
           <h2>Teams Management</h2>
           <button class="btn-primary" onclick="openTeamModal()">+ Add Team</button>
         </div>
-        <p style="color:#999;margin-bottom:1rem;">🖱️ Drag cards to reorder teams</p>
-        <div id="teamsDragContainer" style="display:flex;flex-direction:column;gap:0.5rem;">
-          <p style="color:#999;">Loading teams...</p>
-        </div>
+        <p style="color:#999;">🖱️ Drag cards to reorder</p>
+        <div id="teamsDragContainer"></div>
       </section>
 
       <section id="certificates" class="admin-section">
@@ -88,9 +86,10 @@
         <div id="certificatesGrid"></div>
       </section>
 
+      <!-- TOURNAMENTS WITH EDIT -->
       <section id="tournaments" class="admin-section">
         <div class="section-header">
-          <h2>Tournaments</h2>
+          <h2>Tournament Management</h2>
           <button class="btn-primary" onclick="openTournamentModal()">+ Create Tournament</button>
         </div>
         <div id="tournamentsList"></div>
@@ -108,10 +107,9 @@
         </form>
       </section>
 
-      <!-- SETTINGS -->
       <section id="settings" class="admin-section">
-        <div class="section-header"><h2>Website Settings</h2></div>
-        <div style="background:#1a1a1a;border:1px solid #d4af37;border-radius:0.5rem;padding:1.5rem;margin-bottom:1rem;">
+        <div class="section-header"><h2>Settings</h2></div>
+        <div style="background:#1a1a1a;border:1px solid #d4af37;border-radius:0.5rem;padding:1.5rem;">
           <h3 style="color:#d4af37;">Hero Section</h3>
           <form id="heroForm">
             <div class="form-group"><label>Subtitle</label><input type="text" id="heroSubtitleInput"></div>
@@ -125,7 +123,7 @@
     </main>
   </div>
 
-  <!-- Modals -->
+  <!-- Team Modal -->
   <div id="teamModal" class="modal">
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal('teamModal')">&times;</span>
@@ -139,12 +137,13 @@
         </div>
         <div class="form-group"><label>Team Name</label><input type="text" id="teamNameInput" required></div>
         <div class="form-group"><label>Captain</label><input type="text" id="captainNameInput" required></div>
-        <div class="form-group"><label>Members (comma separated)</label><input type="text" id="teamMembersInput"></div>
+        <div class="form-group"><label>Members</label><input type="text" id="teamMembersInput"></div>
         <button type="submit" class="btn-primary">Save Team</button>
       </form>
     </div>
   </div>
 
+  <!-- Certificate Modal -->
   <div id="certificateModal" class="modal">
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal('certificateModal')">&times;</span>
@@ -162,13 +161,15 @@
     </div>
   </div>
 
+  <!-- Tournament Modal (Create/Edit) -->
   <div id="tournamentModal" class="modal">
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal('tournamentModal')">&times;</span>
-      <h2>Create Tournament</h2>
+      <h2 id="tournamentModalTitle">Create Tournament</h2>
       <form id="tournamentForm">
-        <div class="form-group"><label>Name</label><input type="text" id="tournamentNameInput" required></div>
-        <div class="form-group"><label>Challonge URL</label><input type="url" id="challongeUrlInput"></div>
+        <input type="hidden" id="tournamentId">
+        <div class="form-group"><label>Tournament Name</label><input type="text" id="tournamentNameInput" required></div>
+        <div class="form-group"><label>Challonge URL</label><input type="url" id="challongeUrlInput" placeholder="https://challonge.com/..."></div>
         <div class="form-group"><label>Start Date</label><input type="date" id="tournamentStartDate" required></div>
         <div class="form-group"><label>End Date</label><input type="date" id="tournamentEndDate" required></div>
         <div class="form-group">
@@ -179,7 +180,7 @@
             <option value="completed">Completed</option>
           </select>
         </div>
-        <button type="submit" class="btn-primary">Create</button>
+        <button type="submit" class="btn-primary">Save Tournament</button>
       </form>
     </div>
   </div>
@@ -230,110 +231,154 @@
       reader.readAsDataURL(file);
     }
 
-    // LOAD TEAMS WITH DRAG AND DROP
+    // LOAD TEAMS (drag and drop)
     function loadTeams() {
       db.collection('teams').get().then(snapshot => {
         document.getElementById('totalTeams').textContent = snapshot.size;
         const container = document.getElementById('teamsDragContainer');
         container.innerHTML = '';
-        
-        if (snapshot.empty) {
-          container.innerHTML = '<p style="color:#999;">No teams yet</p>';
-          return;
-        }
+        if (snapshot.empty) { container.innerHTML = '<p style="color:#999;">No teams yet</p>'; return; }
         
         const teams = [];
         snapshot.forEach(doc => teams.push({ id: doc.id, ...doc.data() }));
-        
-        teams.sort((a, b) => {
-          if (a.order === undefined && b.order === undefined) return 0;
-          if (a.order === undefined) return 1;
-          if (b.order === undefined) return -1;
-          return a.order - b.order;
-        });
+        teams.sort((a, b) => (a.order || 999) - (b.order || 999));
         
         teams.forEach((team, index) => {
           const card = document.createElement('div');
           card.setAttribute('draggable', 'true');
           card.dataset.teamId = team.id;
-          card.style.cssText = 'display:flex;align-items:center;gap:1rem;background:#1a1a1a;border:2px solid #d4af37;border-radius:0.5rem;padding:0.75rem;cursor:grab;transition:all 0.3s;';
+          card.style.cssText = 'display:flex;align-items:center;gap:1rem;background:#1a1a1a;border:2px solid #d4af37;border-radius:0.5rem;padding:0.75rem;cursor:grab;';
           
-          // DRAG EVENTS
-          card.addEventListener('dragstart', function(e) {
-            draggedTeamId = team.id;
-            this.style.opacity = '0.4';
-            this.style.borderStyle = 'dashed';
-            e.dataTransfer.effectAllowed = 'move';
-          });
-          
-          card.addEventListener('dragend', function() {
-            this.style.opacity = '1';
-            this.style.borderStyle = 'solid';
-          });
-          
-          card.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            this.style.borderColor = '#f0d68a';
-            this.style.background = '#2a2a2a';
-            this.style.transform = 'scale(1.02)';
-          });
-          
-          card.addEventListener('dragleave', function() {
-            this.style.borderColor = '#d4af37';
-            this.style.background = '#1a1a1a';
-            this.style.transform = 'scale(1)';
-          });
-          
+          card.addEventListener('dragstart', function(e) { draggedTeamId = team.id; this.style.opacity = '0.4'; });
+          card.addEventListener('dragend', function() { this.style.opacity = '1'; });
+          card.addEventListener('dragover', function(e) { e.preventDefault(); this.style.borderColor = '#f0d68a'; });
+          card.addEventListener('dragleave', function() { this.style.borderColor = '#d4af37'; });
           card.addEventListener('drop', function(e) {
             e.preventDefault();
             this.style.borderColor = '#d4af37';
-            this.style.background = '#1a1a1a';
-            this.style.transform = 'scale(1)';
-            const targetTeamId = this.dataset.teamId;
-            if (draggedTeamId && draggedTeamId !== targetTeamId) {
-              reorderTeams(draggedTeamId, targetTeamId);
-            }
+            const targetId = this.dataset.teamId;
+            if (draggedTeamId && draggedTeamId !== targetId) reorderTeams(draggedTeamId, targetId);
           });
           
           card.innerHTML = `
             <span style="color:#d4af37;font-weight:700;width:30px;">${index + 1}</span>
-            ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:60px;height:60px;object-fit:cover;border-radius:10px;" draggable="false">` : '<span style="font-size:2rem;">🏆</span>'}
-            <div style="flex:1;">
-              <strong style="color:white;">${team.name}</strong>
-              <p style="color:#999;margin:0;">Captain: ${team.captain}</p>
-            </div>
-            <span style="color:#666;font-size:1.2rem;">⠿</span>
+            ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:60px;height:60px;object-fit:cover;border-radius:10px;">` : '🏆'}
+            <div style="flex:1;"><strong style="color:white;">${team.name}</strong><p style="color:#999;margin:0;">${team.captain}</p></div>
+            <span style="color:#666;">⠿</span>
             <button onclick="deleteTeam('${team.id}')" style="background:rgba(220,53,69,0.1);border:1px solid rgba(220,53,69,0.3);color:#ff6b7a;padding:0.3rem 0.6rem;border-radius:0.3rem;cursor:pointer;">🗑️</button>
           `;
-          
           container.appendChild(card);
         });
       });
     }
 
-    // REORDER TEAMS
     async function reorderTeams(draggedId, targetId) {
       const teams = [];
       const snapshot = await db.collection('teams').get();
       snapshot.forEach(doc => teams.push({ id: doc.id, ...doc.data() }));
-      
       teams.sort((a, b) => (a.order || 999) - (b.order || 999));
-      
       const draggedIndex = teams.findIndex(t => t.id === draggedId);
       const targetIndex = teams.findIndex(t => t.id === targetId);
-      
       if (draggedIndex === -1 || targetIndex === -1) return;
-      
       const [draggedTeam] = teams.splice(draggedIndex, 1);
       teams.splice(targetIndex, 0, draggedTeam);
-      
       for (let i = 0; i < teams.length; i++) {
         await db.collection('teams').doc(teams[i].id).update({ order: i });
       }
-      
       loadTeams();
     }
+
+    // LOAD TOURNAMENTS WITH EDIT BUTTON
+    function loadTournaments() {
+      db.collection('tournaments').get().then(snapshot => {
+        document.getElementById('totalTournaments').textContent = snapshot.size;
+        const list = document.getElementById('tournamentsList');
+        list.innerHTML = '';
+        if (snapshot.empty) { list.innerHTML = '<p style="color:#999;">No tournaments yet</p>'; return; }
+        snapshot.forEach(doc => {
+          const t = doc.data();
+          list.innerHTML += `
+            <div class="tournament-card" style="background:#1a1a1a;border:1px solid #d4af37;border-radius:0.5rem;padding:1rem;margin-bottom:0.5rem;display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <h3 style="color:#d4af37;">🏆 ${t.name}</h3>
+                <p style="color:#999;">${t.startDate} - ${t.endDate}</p>
+                ${t.challongeUrl ? `<p style="color:#d4af37;font-size:0.8rem;">🔗 ${t.challongeUrl}</p>` : ''}
+              </div>
+              <div style="display:flex;align-items:center;gap:0.5rem;">
+                <span style="padding:0.3rem 0.8rem;border-radius:50px;font-size:0.75rem;font-weight:700;${t.status === 'active' ? 'background:rgba(46,213,115,0.2);color:#2ed573;' : t.status === 'upcoming' ? 'background:rgba(255,193,7,0.2);color:#ffc107;' : 'background:rgba(108,117,125,0.2);color:#6c757d;'}">${t.status.toUpperCase()}</span>
+                <button onclick="editTournament('${doc.id}')" style="background:rgba(212,175,55,0.1);border:1px solid #d4af37;color:#d4af37;padding:0.3rem 0.6rem;border-radius:0.3rem;cursor:pointer;">✏️ Edit</button>
+                <button onclick="deleteTournament('${doc.id}')" style="background:rgba(220,53,69,0.1);border:1px solid rgba(220,53,69,0.3);color:#ff6b7a;padding:0.3rem 0.6rem;border-radius:0.3rem;cursor:pointer;">🗑️</button>
+              </div>
+            </div>
+          `;
+        });
+      });
+    }
+
+    // OPEN TOURNAMENT MODAL (Create or Edit)
+    function openTournamentModal(tournamentId = null) {
+      document.getElementById('tournamentModal').style.display = 'block';
+      document.getElementById('tournamentForm').reset();
+      document.getElementById('tournamentId').value = '';
+      document.getElementById('tournamentModalTitle').textContent = 'Create Tournament';
+      
+      if (tournamentId) {
+        document.getElementById('tournamentModalTitle').textContent = 'Edit Tournament';
+        db.collection('tournaments').doc(tournamentId).get().then(doc => {
+          if (doc.exists) {
+            const t = doc.data();
+            document.getElementById('tournamentId').value = tournamentId;
+            document.getElementById('tournamentNameInput').value = t.name || '';
+            document.getElementById('challongeUrlInput').value = t.challongeUrl || '';
+            document.getElementById('tournamentStartDate').value = t.startDate || '';
+            document.getElementById('tournamentEndDate').value = t.endDate || '';
+            document.getElementById('tournamentStatus').value = t.status || 'upcoming';
+          }
+        });
+      }
+    }
+
+    function editTournament(tournamentId) {
+      openTournamentModal(tournamentId);
+    }
+
+    // SAVE TOURNAMENT (Create or Update)
+    document.getElementById('tournamentForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const tournamentId = document.getElementById('tournamentId').value;
+      const data = {
+        name: document.getElementById('tournamentNameInput').value,
+        challongeUrl: document.getElementById('challongeUrlInput').value || null,
+        startDate: document.getElementById('tournamentStartDate').value,
+        endDate: document.getElementById('tournamentEndDate').value,
+        status: document.getElementById('tournamentStatus').value,
+      };
+      
+      if (tournamentId) {
+        // EDIT
+        db.collection('tournaments').doc(tournamentId).update({
+          ...data,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+          closeModal('tournamentModal');
+          alert('✅ Tournament updated!');
+          loadTournaments();
+        });
+      } else {
+        // CREATE
+        db.collection('tournaments').add({
+          ...data,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+          closeModal('tournamentModal');
+          alert('✅ Tournament created!');
+          this.reset();
+          loadTournaments();
+        });
+      }
+    });
+
+    function deleteTournament(id) { if (confirm('Delete?')) db.collection('tournaments').doc(id).delete().then(() => loadTournaments()); }
 
     function loadCertificates() {
       db.collection('certificates').get().then(snapshot => {
@@ -355,25 +400,6 @@
       });
     }
 
-    function loadTournaments() {
-      db.collection('tournaments').get().then(snapshot => {
-        const list = document.getElementById('tournamentsList');
-        list.innerHTML = '';
-        if (snapshot.empty) { list.innerHTML = '<p style="color:#999;">No tournaments</p>'; return; }
-        snapshot.forEach(doc => {
-          const t = doc.data();
-          list.innerHTML += `
-            <div class="tournament-card">
-              <h3>🏆 ${t.name}</h3>
-              <p>${t.startDate} - ${t.endDate}</p>
-              <span>${t.status}</span>
-              <button class="btn-danger" onclick="deleteTournament('${doc.id}')">Delete</button>
-            </div>
-          `;
-        });
-      });
-    }
-
     document.getElementById('announcementForm').addEventListener('submit', function(e) {
       e.preventDefault();
       db.collection('content').doc('announcement').set({
@@ -387,7 +413,6 @@
       const snapshot = await db.collection('teams').orderBy('order', 'desc').limit(1).get();
       let maxOrder = 0;
       snapshot.forEach(doc => { maxOrder = doc.data().order || 0; });
-      
       db.collection('teams').add({
         name: document.getElementById('teamNameInput').value,
         captain: document.getElementById('captainNameInput').value,
@@ -422,30 +447,11 @@
       });
     });
 
-    document.getElementById('tournamentForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      db.collection('tournaments').add({
-        name: document.getElementById('tournamentNameInput').value,
-        challongeUrl: document.getElementById('challongeUrlInput').value || null,
-        startDate: document.getElementById('tournamentStartDate').value,
-        endDate: document.getElementById('tournamentEndDate').value,
-        status: document.getElementById('tournamentStatus').value,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(() => {
-        closeModal('tournamentModal');
-        alert('✅ Tournament created!');
-        this.reset();
-        loadTournaments();
-      });
-    });
-
     function deleteTeam(id) { if (confirm('Delete?')) db.collection('teams').doc(id).delete().then(() => loadTeams()); }
     function deleteCertificate(id) { if (confirm('Delete?')) db.collection('certificates').doc(id).delete().then(() => loadCertificates()); }
-    function deleteTournament(id) { if (confirm('Delete?')) db.collection('tournaments').doc(id).delete().then(() => loadTournaments()); }
 
     function openTeamModal() { document.getElementById('teamModal').style.display = 'block'; document.getElementById('teamForm').reset(); teamLogoData = null; document.getElementById('teamLogoPreview').style.display = 'none'; }
     function openCertificateModal() { document.getElementById('certificateModal').style.display = 'block'; document.getElementById('certificateForm').reset(); certImageData = null; document.getElementById('certImagePreview').style.display = 'none'; }
-    function openTournamentModal() { document.getElementById('tournamentModal').style.display = 'block'; document.getElementById('tournamentForm').reset(); }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     function showSection(sectionName, event) {
