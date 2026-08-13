@@ -26,7 +26,6 @@
       messagingSenderId: "917825703936",
       appId: "1:917825703936:web:657a3024ef2a66580d48e5"
     };
-    
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
@@ -50,15 +49,9 @@
         <a href="#register" class="nav-link">Register</a>
       </div>
       <div class="nav-actions">
-        <div class="founder-badge">
-          <i class="fas fa-shield-alt"></i> FOUNDER · MYLYKES
-        </div>
-        <a href="admin.html" class="login-link" id="adminPanelBtn" style="display:none;">
-          <i class="fas fa-user-shield"></i> Admin Panel
-        </a>
-        <a href="login.html" class="login-link" id="loginBtn">
-          <i class="fas fa-user-shield"></i> Admin
-        </a>
+        <div class="founder-badge">FOUNDER · MYLYKES</div>
+        <a href="admin.html" class="login-link" id="adminPanelBtn" style="display:none;">Admin Panel</a>
+        <a href="login.html" class="login-link" id="loginBtn">Admin</a>
       </div>
     </nav>
 
@@ -72,9 +65,8 @@
     <!-- Hero Content -->
     <div class="hero-content-below">
       <div class="hero-text-center">
-        <div class="section-sub">premium esports management</div>
         <h1 class="hero-heading">FORGE YOUR <span class="gold-text">LEGACY</span></h1>
-        <p class="hero-description">Six elite teams. One vision. Unstoppable excellence.</p>
+        <p class="hero-description">Six elite teams. One vision.</p>
         <button class="cta-button" onclick="scrollToSection('register')">
           <i class="fas fa-trophy"></i> Register for Tournament
         </button>
@@ -85,7 +77,7 @@
     <section id="teams">
       <h2 class="section-title">TEAM BANNERS</h2>
       <div class="teams-grid" id="teamsGrid">
-        <p style="color:#999;grid-column:1/-1;text-align:center;">Loading teams...</p>
+        <p style="color:#999;">Loading teams...</p>
       </div>
     </section>
 
@@ -93,7 +85,7 @@
     <section id="achievements">
       <h2 class="section-title">ACHIEVEMENTS</h2>
       <div class="achievements-container" id="achievementsContainer">
-        <p style="color:#999;grid-column:1/-1;text-align:center;">Loading...</p>
+        <p style="color:#999;">Loading...</p>
       </div>
     </section>
 
@@ -119,11 +111,9 @@
     <!-- Registration -->
     <section id="register">
       <h2 class="section-title">TOURNAMENT REGISTRATION</h2>
-      <div class="registration-container">
-        <a href="https://docs.google.com/forms/d/1hhS8IsiMIJGG_-Xv9SyOH_R9wcWcnhMHddG3Gvohi8A/edit" target="_blank" class="google-form-btn">
-          <i class="fab fa-google"></i> Register for Tournament
-        </a>
-      </div>
+      <a href="https://docs.google.com/forms/d/1hhS8IsiMIJGG_-Xv9SyOH_R9wcWcnhMHddG3Gvohi8A/edit" target="_blank" class="google-form-btn">
+        <i class="fab fa-google"></i> Register Now
+      </a>
     </section>
 
     <!-- Founder -->
@@ -137,13 +127,12 @@
 
     <!-- Footer -->
     <footer class="footer">
-      <div>© 2025 DAKS SYSTEM · All rights reserved</div>
-      <div>Premium Management & Esports Organization</div>
+      <div>© 2025 DAKS SYSTEM</div>
     </footer>
   </div>
 
-  <!-- Team Modal -->
-  <div id="teamModal" class="modal">
+  <!-- TEAM MODAL -->
+  <div id="teamModal" class="modal" style="display:none;">
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal()">&times;</span>
       <div id="modalContent"></div>
@@ -151,7 +140,8 @@
   </div>
 
   <script>
-    // Check session for admin button
+    let allTeams = [];
+
     function checkSession() {
       const session = localStorage.getItem('daksSystemSession');
       if (session) {
@@ -159,32 +149,35 @@
         document.getElementById('loginBtn').style.display = 'none';
       }
     }
-    
-    // Load teams
+
+    // Load teams with GLOSSY effect
     async function loadTeams() {
       const grid = document.getElementById('teamsGrid');
-      
       try {
         const snapshot = await db.collection('teams').get();
-        console.log('✅ Teams:', snapshot.size);
         
         if (snapshot.empty) {
           grid.innerHTML = '<p style="color:#999;">No teams yet</p>';
           return;
         }
         
+        allTeams = [];
         grid.innerHTML = '';
+        
         snapshot.forEach(doc => {
-          const team = doc.data();
+          const team = { id: doc.id, ...doc.data() };
+          allTeams.push(team);
+          
           const card = document.createElement('div');
           card.className = 'team-card';
           card.style.cursor = 'pointer';
           card.onclick = function() {
-            showTeamDetails(team);
+            openTeamModal(team.id);
           };
+          
           card.innerHTML = `
             <div class="banner-placeholder">
-              ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:100%;height:100%;object-fit:cover;">` : '🏆'}
+              ${team.logoUrl ? `<img src="${team.logoUrl}">` : '🏆'}
               <div class="banner-reflection"></div>
             </div>
             <div class="team-info">
@@ -198,37 +191,52 @@
         grid.innerHTML = '<p style="color:red;">Error: ' + error.message + '</p>';
       }
     }
-    
-    // Show team details
-    function showTeamDetails(team) {
+
+    // OPEN TEAM MODAL
+    function openTeamModal(teamId) {
+      const team = allTeams.find(t => t.id === teamId);
+      if (!team) return;
+      
       const modal = document.getElementById('teamModal');
       const content = document.getElementById('modalContent');
+      const members = team.members || [];
+      
       content.innerHTML = `
-        <h2 style="color:#d4af37;">${team.name}</h2>
-        ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:100%;height:250px;object-fit:contain;background:#0b0b0b;border-radius:10px;margin:1rem 0;">` : ''}
+        <h2 style="color:#d4af37;margin-bottom:1rem;">${team.name}</h2>
+        ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:100%;height:200px;object-fit:contain;background:#0b0b0b;border-radius:10px;margin-bottom:1rem;">` : ''}
         <p><strong>Captain:</strong> ${team.captain}</p>
         <p><strong>Wins:</strong> ${team.wins || 0}</p>
-        <p><strong>Rating:</strong> ⭐ ${team.rating || 0}</p>
-        ${team.members ? `<h3 style="color:#d4af37;margin-top:1rem;">Roster</h3>${team.members.map(m => `<p>• ${m}</p>`).join('')}` : ''}
+        <p><strong>Rating:</strong> ⭐ ${team.rating || 0}/5.0</p>
+        <h3 style="color:#d4af37;margin-top:1rem;">👥 TEAM PLAYERS</h3>
+        ${members.length > 0 ? members.map((player, index) => `
+          <div style="display:flex;gap:0.5rem;padding:0.5rem;background:#111;border-radius:0.3rem;margin-bottom:0.3rem;">
+            <span style="color:#d4af37;font-weight:700;">${index + 1}.</span>
+            <span style="color:white;">${player}</span>
+          </div>
+        `).join('') : '<p style="color:#999;">No players listed</p>'}
       `;
+      
       modal.style.display = 'block';
     }
-    
+
     function closeModal() {
       document.getElementById('teamModal').style.display = 'none';
     }
-    
-    // Load achievements
+
+    window.onclick = function(event) {
+      if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+      }
+    }
+
     async function loadAchievements() {
       const container = document.getElementById('achievementsContainer');
       try {
         const snapshot = await db.collection('certificates').orderBy('createdAt', 'desc').get();
-        
         if (snapshot.empty) {
-          container.innerHTML = '<p style="color:#999;">Tournament winners will appear here!</p>';
+          container.innerHTML = '<p style="color:#999;">No achievements yet</p>';
           return;
         }
-        
         container.innerHTML = '';
         snapshot.forEach(doc => {
           const cert = doc.data();
@@ -238,18 +246,16 @@
             <i class="fas fa-trophy" style="font-size:2rem;color:#d4af37;"></i>
             <div>
               <h3 style="color:#d4af37;">${cert.title}</h3>
-              <p style="color:white;font-weight:700;">🏆 ${cert.teamName}</p>
-              <p style="color:#666;font-size:0.85rem;">${cert.date}</p>
+              <p style="color:white;">🏆 ${cert.teamName}</p>
             </div>
           `;
           container.appendChild(card);
         });
       } catch (error) {
-        console.error('Error:', error);
+        console.error(error);
       }
     }
-    
-    // Load tournaments
+
     async function loadTournaments() {
       const pastDiv = document.getElementById('pastTournament');
       const upcomingDiv = document.getElementById('upcomingTournament');
@@ -257,75 +263,46 @@
       
       try {
         const snapshot = await db.collection('tournaments').get();
-        
         if (snapshot.empty) {
           pastDiv.innerHTML = '<p style="color:#999;">No tournaments</p>';
-          upcomingDiv.innerHTML = '<p style="color:#999;">No upcoming</p>';
-          currentBracket.innerHTML = '<p style="color:#999;">No active</p>';
           return;
         }
         
         const tournaments = [];
         snapshot.forEach(doc => tournaments.push({ id: doc.id, ...doc.data() }));
         
-        // Past
         const completed = tournaments.filter(t => t.status === 'completed');
         pastDiv.innerHTML = completed.length > 0 ? completed.map(t => `
           <div style="background:#1a1a1a;border:1px solid #d4af37;border-radius:0.5rem;padding:1rem;margin-bottom:0.5rem;">
             <h3 style="color:#d4af37;">🏆 ${t.name}</h3>
           </div>
-        `).join('') : '<p style="color:#999;">No past tournaments</p>';
-        
-        // Upcoming
-        const upcoming = tournaments.filter(t => t.status === 'upcoming');
-        upcomingDiv.innerHTML = upcoming.length > 0 ? `<h3 style="color:#d4af37;">${upcoming[0].name}</h3>` : '<p style="color:#999;">No upcoming</p>';
-        
-        // Current
-        const active = tournaments.filter(t => t.status === 'active');
-        if (active.length > 0 && active[0].challongeUrl) {
-          let url = active[0].challongeUrl.replace(/\/$/, '');
-          if (!url.includes('/module')) url += '/module';
-          currentBracket.innerHTML = `<iframe src="${url}" width="100%" height="500" frameborder="0" style="background:white;border-radius:0.5rem;"></iframe>`;
-        } else {
-          currentBracket.innerHTML = '<p style="color:#999;">No active bracket</p>';
-        }
+        `).join('') : '<p style="color:#999;">No past</p>';
       } catch (error) {
-        console.error('Error:', error);
+        console.error(error);
       }
     }
-    
+
     function scrollToSection(id) {
       document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
     }
-    
+
     function switchTournament(tab, event) {
       document.querySelectorAll('.tournament-content').forEach(c => c.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(tab + '-tournament').classList.add('active');
       if (event && event.target) event.target.classList.add('active');
     }
-    
+
     // INITIALIZE
     checkSession();
     loadTeams();
     loadAchievements();
     loadTournaments();
-    
+
     // REAL-TIME AUTO-RELOAD
-    db.collection('teams').onSnapshot(() => {
-      console.log('🔄 Teams updated');
-      loadTeams();
-    });
-    
-    db.collection('certificates').onSnapshot(() => {
-      console.log('🔄 Certificates updated');
-      loadAchievements();
-    });
-    
-    db.collection('tournaments').onSnapshot(() => {
-      console.log('🔄 Tournaments updated');
-      loadTournaments();
-    });
+    db.collection('teams').onSnapshot(() => loadTeams());
+    db.collection('certificates').onSnapshot(() => loadAchievements());
+    db.collection('tournaments').onSnapshot(() => loadTournaments());
   </script>
 </body>
 </html>
