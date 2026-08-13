@@ -132,12 +132,17 @@
         <div class="settings-panel">
           <form id="announcementForm">
             <div class="form-group">
+              <label>Announcement Image (optional)</label>
+              <input type="file" id="announcementImageInput" accept="image/*" onchange="previewAnnouncementImage(event)">
+              <img id="announcementImagePreview" style="display:none;width:100%;max-height:200px;object-fit:contain;margin-top:0.5rem;border-radius:10px;border:2px solid #d4af37;">
+            </div>
+            <div class="form-group">
               <label>Announcement Title</label>
               <input type="text" id="announcementTitleInput" placeholder="e.g., DAKS INVITATIONAL 2025">
             </div>
             <div class="form-group">
               <label>Description</label>
-              <textarea id="announcementDescInput" rows="3" placeholder="Registration opens soon! Stay tuned!"></textarea>
+              <textarea id="announcementDescInput" rows="3" placeholder="Registration opens soon!"></textarea>
             </div>
             <div class="form-group">
               <label>Button Text (optional)</label>
@@ -168,9 +173,9 @@
             <i class="fas fa-upload"></i> Upload Team Banner
           </button>
         </div>
-        <div class="form-group"><label>Team Name</label><input type="text" id="teamNameInput" required placeholder="Enter team name"></div>
-        <div class="form-group"><label>Captain</label><input type="text" id="captainNameInput" required placeholder="Enter captain name"></div>
-        <div class="form-group"><label>Members (comma separated)</label><input type="text" id="teamMembersInput" placeholder="Player1, Player2, Player3"></div>
+        <div class="form-group"><label>Team Name</label><input type="text" id="teamNameInput" required></div>
+        <div class="form-group"><label>Captain</label><input type="text" id="captainNameInput" required></div>
+        <div class="form-group"><label>Members (comma separated)</label><input type="text" id="teamMembersInput"></div>
         <button type="submit" class="btn-primary">Save Team</button>
       </form>
     </div>
@@ -183,12 +188,12 @@
       <h2>Upload Certificate</h2>
       <form id="certificateForm">
         <div class="form-group">
-          <label>Certificate Image (Your design)</label>
+          <label>Certificate Image</label>
           <input type="file" id="certImageInput" accept="image/*" onchange="previewCertImage(event)">
           <img id="certImagePreview" style="display:none;width:100%;max-height:200px;object-fit:contain;margin-top:0.5rem;border-radius:10px;border:2px solid #d4af37;">
         </div>
         <div class="form-group"><label>Winning Team Name</label><input type="text" id="certTeamName" required></div>
-        <div class="form-group"><label>Achievement Title</label><input type="text" id="certTitle" required placeholder="e.g., Champion"></div>
+        <div class="form-group"><label>Achievement Title</label><input type="text" id="certTitle" required></div>
         <button type="submit" class="btn-primary">Upload Certificate</button>
       </form>
     </div>
@@ -201,7 +206,7 @@
       <h2>Create Tournament</h2>
       <form id="tournamentForm">
         <div class="form-group"><label>Tournament Name</label><input type="text" id="tournamentNameInput" required></div>
-        <div class="form-group"><label>Challonge URL</label><input type="url" id="challongeUrlInput" placeholder="https://challonge.com/..."></div>
+        <div class="form-group"><label>Challonge URL</label><input type="url" id="challongeUrlInput"></div>
         <div class="form-group"><label>Start Date</label><input type="date" id="tournamentStartDate" required></div>
         <div class="form-group"><label>End Date</label><input type="date" id="tournamentEndDate" required></div>
         <div class="form-group">
@@ -220,6 +225,7 @@
   <script>
     let teamLogoData = null;
     let certImageData = null;
+    let announcementImageData = null;
 
     // Session check
     const session = localStorage.getItem('daksSystemSession');
@@ -251,6 +257,19 @@
         certImageData = e.target.result;
         document.getElementById('certImagePreview').src = e.target.result;
         document.getElementById('certImagePreview').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // PREVIEW ANNOUNCEMENT IMAGE
+    function previewAnnouncementImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        announcementImageData = e.target.result;
+        document.getElementById('announcementImagePreview').src = e.target.result;
+        document.getElementById('announcementImagePreview').style.display = 'block';
       };
       reader.readAsDataURL(file);
     }
@@ -319,7 +338,6 @@
               <div class="tournament-info">
                 <h3>🏆 ${t.name}</h3>
                 <p>${t.startDate} - ${t.endDate}</p>
-                ${t.challongeUrl ? `<p style="color:#d4af37;font-size:0.8rem;">🔗 ${t.challongeUrl}</p>` : ''}
               </div>
               <span class="tournament-status status-${t.status}">${t.status}</span>
               <button class="btn-danger" onclick="deleteTournament('${doc.id}')">Delete</button>
@@ -329,21 +347,7 @@
       });
     }
 
-    // SAVE ANNOUNCEMENT
-    document.getElementById('announcementForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      db.collection('content').doc('announcement').set({
-        title: document.getElementById('announcementTitleInput').value,
-        description: document.getElementById('announcementDescInput').value,
-        buttonText: document.getElementById('announcementButtonInput').value,
-        buttonLink: document.getElementById('announcementLinkInput').value,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(() => {
-        alert('✅ Announcement saved!');
-      });
-    });
-
-    // LOAD ANNOUNCEMENT (for editing)
+    // LOAD ANNOUNCEMENT
     function loadAnnouncement() {
       db.collection('content').doc('announcement').get().then(doc => {
         if (doc.exists) {
@@ -352,9 +356,29 @@
           document.getElementById('announcementDescInput').value = data.description || '';
           document.getElementById('announcementButtonInput').value = data.buttonText || '';
           document.getElementById('announcementLinkInput').value = data.buttonLink || '';
+          if (data.imageUrl) {
+            document.getElementById('announcementImagePreview').src = data.imageUrl;
+            document.getElementById('announcementImagePreview').style.display = 'block';
+            announcementImageData = data.imageUrl;
+          }
         }
       });
     }
+
+    // SAVE ANNOUNCEMENT
+    document.getElementById('announcementForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      db.collection('content').doc('announcement').set({
+        title: document.getElementById('announcementTitleInput').value,
+        description: document.getElementById('announcementDescInput').value,
+        imageUrl: announcementImageData || null,
+        buttonText: document.getElementById('announcementButtonInput').value,
+        buttonLink: document.getElementById('announcementLinkInput').value,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        alert('✅ Announcement saved!');
+      });
+    });
 
     // SAVE TEAM
     document.getElementById('teamForm').addEventListener('submit', function(e) {
@@ -412,9 +436,9 @@
     });
 
     // DELETE FUNCTIONS
-    function deleteTeam(id) { if (confirm('Delete this team?')) db.collection('teams').doc(id).delete().then(() => loadTeams()); }
-    function deleteCertificate(id) { if (confirm('Delete this certificate?')) db.collection('certificates').doc(id).delete().then(() => loadCertificates()); }
-    function deleteTournament(id) { if (confirm('Delete this tournament?')) db.collection('tournaments').doc(id).delete().then(() => loadTournaments()); }
+    function deleteTeam(id) { if (confirm('Delete team?')) db.collection('teams').doc(id).delete().then(() => loadTeams()); }
+    function deleteCertificate(id) { if (confirm('Delete certificate?')) db.collection('certificates').doc(id).delete().then(() => loadCertificates()); }
+    function deleteTournament(id) { if (confirm('Delete tournament?')) db.collection('tournaments').doc(id).delete().then(() => loadTournaments()); }
 
     // MODAL FUNCTIONS
     function openTeamModal() {
@@ -422,7 +446,6 @@
       document.getElementById('teamForm').reset();
       teamLogoData = null;
       document.getElementById('teamLogoPreview').style.display = 'none';
-      document.getElementById('teamLogoInput').value = '';
     }
     function openCertificateModal() {
       document.getElementById('certificateModal').style.display = 'block';
