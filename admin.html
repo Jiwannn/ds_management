@@ -32,7 +32,7 @@
     const db = firebase.firestore();
     window.auth = auth;
     window.db = db;
-    console.log('✅ Firebase initialized inline');
+    console.log('✅ Firebase initialized');
   </script>
 </head>
 <body>
@@ -137,30 +137,29 @@
           <form id="nicknameForm">
             <div class="form-group">
               <label>Your Nickname</label>
-              <input type="text" id="nicknameInput" placeholder="Enter your nickname" required>
+              <input type="text" id="nicknameInput" placeholder="Enter your nickname">
             </div>
             <button type="submit" class="btn-primary">Update Nickname</button>
-          </form>
-        </div>
-        
-        <div class="settings-panel" style="margin-top:1rem;">
-          <h3>Change Password</h3>
-          <form id="adminAccountForm">
-            <div class="form-group"><label>Email</label><input type="email" id="adminAccountEmail" disabled></div>
-            <div class="form-group"><label>New Password</label><input type="password" id="adminNewPassword" minlength="8"></div>
-            <button type="submit" class="btn-primary">Update Password</button>
           </form>
         </div>
       </section>
     </main>
   </div>
 
-  <!-- Team Modal -->
+  <!-- Team Modal with Logo Upload -->
   <div id="teamModal" class="modal">
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal('teamModal')">&times;</span>
       <h2>Add Team</h2>
       <form id="teamForm">
+        <div class="form-group">
+          <label>Team Logo (Banner Image)</label>
+          <input type="file" id="teamLogoInput" accept="image/*" onchange="handleLogoUpload(event)" style="display:none;">
+          <img id="teamLogoPreview" src="" alt="Logo Preview" style="display:none;width:80px;height:80px;object-fit:cover;border-radius:10px;border:2px solid #d4af37;margin-bottom:0.5rem;">
+          <button type="button" onclick="document.getElementById('teamLogoInput').click()" style="background:rgba(212,175,55,0.1);border:1px solid #d4af37;color:#d4af37;padding:0.5rem 1rem;border-radius:0.5rem;cursor:pointer;">
+            📸 Upload Team Banner
+          </button>
+        </div>
         <div class="form-group"><label>Team Name</label><input type="text" id="teamNameInput" required></div>
         <div class="form-group"><label>Captain</label><input type="text" id="captainNameInput" required></div>
         <div class="form-group"><label>Members (comma separated)</label><input type="text" id="teamMembersInput"></div>
@@ -176,7 +175,7 @@
       <h2>Create Tournament</h2>
       <form id="tournamentForm">
         <div class="form-group"><label>Name</label><input type="text" id="tournamentNameInput" required></div>
-        <div class="form-group"><label>Challonge URL</label><input type="url" id="challongeUrlInput"></div>
+        <div class="form-group"><label>Challonge URL</label><input type="url" id="challongeUrlInput" placeholder="https://challonge.com/..."></div>
         <div class="form-group"><label>Start Date</label><input type="date" id="tournamentStartDate" required></div>
         <div class="form-group"><label>End Date</label><input type="date" id="tournamentEndDate" required></div>
         <div class="form-group">
@@ -192,6 +191,279 @@
     </div>
   </div>
 
-  <script src="admin-script.js"></script>
+  <script>
+    // ADMIN SCRIPT - INLINE
+    let uploadedLogoUrl = null;
+    let currentUser = null;
+
+    // Check session
+    document.addEventListener('DOMContentLoaded', function() {
+      const session = localStorage.getItem('daksSystemSession');
+      if (!session) {
+        window.location.replace('login.html');
+        return;
+      }
+      
+      currentUser = JSON.parse(session);
+      document.getElementById('adminName').textContent = currentUser.name || 'Admin';
+      document.getElementById('nicknameInput').value = currentUser.name || '';
+      
+      loadTeams();
+      loadCertificates();
+      loadTournaments();
+      
+      setupForms();
+    });
+
+    function setupForms() {
+      document.getElementById('teamForm').addEventListener('submit', saveTeam);
+      document.getElementById('tournamentForm').addEventListener('submit', saveTournament);
+      document.getElementById('nicknameForm').addEventListener('submit', saveNickname);
+    }
+
+    // Handle Logo Upload
+    function handleLogoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        uploadedLogoUrl = e.target.result;
+        const preview = document.getElementById('teamLogoPreview');
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Load Teams
+    async function loadTeams() {
+      const tbody = document.getElementById('teamsTableBody');
+      
+      try {
+        const snapshot = await db.collection('teams').get();
+        
+        if (snapshot.empty) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;padding:2rem;">No teams yet. Click "Add Team"</td></tr>';
+          return;
+        }
+        
+        tbody.innerHTML = '';
+        snapshot.forEach(doc => {
+          const team = doc.data();
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${team.logoUrl ? `<img src="${team.logoUrl}" style="width:50px;height:50px;object-fit:cover;border-radius:10px;border:2px solid #d4af37;">` : '🏆'}</td>
+            <td style="color:white;font-weight:600;">${team.name}</td>
+            <td style="color:#999;">${team.captain}</td>
+            <td>
+              <button onclick="deleteTeam('${doc.id}')" style="background:rgba(220,53,69,0.1);border:1px solid rgba(220,53,69,0.3);color:#ff6b7a;padding:0.3rem 0.8rem;border-radius:0.3rem;cursor:pointer;">🗑️ Delete</button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+        
+        document.getElementById('totalTeams').textContent = snapshot.size;
+      } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="4" style="color:red;">Error: ${error.message}</td></tr>`;
+      }
+    }
+
+    // Save Team
+    async function saveTeam(e) {
+      e.preventDefault();
+      
+      const teamData = {
+        name: document.getElementById('teamNameInput').value,
+        captain: document.getElementById('captainNameInput').value,
+        members: document.getElementById('teamMembersInput').value.split(',').map(m => m.trim()).filter(m => m),
+        logoUrl: uploadedLogoUrl || null,
+        wins: 0,
+        rating: 4.5,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      
+      if (!teamData.name || !teamData.captain) {
+        alert('Please fill in team name and captain');
+        return;
+      }
+      
+      try {
+        await db.collection('teams').add(teamData);
+        closeModal('teamModal');
+        alert('✅ Team added!');
+        document.getElementById('teamForm').reset();
+        uploadedLogoUrl = null;
+        document.getElementById('teamLogoPreview').style.display = 'none';
+        loadTeams();
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    }
+
+    // Delete Team
+    async function deleteTeam(teamId) {
+      if (confirm('Delete this team?')) {
+        await db.collection('teams').doc(teamId).delete();
+        loadTeams();
+      }
+    }
+
+    // Load Certificates
+    async function loadCertificates() {
+      try {
+        const snapshot = await db.collection('certificates').get();
+        const grid = document.getElementById('certificatesGrid');
+        
+        if (snapshot.empty) {
+          grid.innerHTML = '<p style="color:#999;">No certificates</p>';
+          return;
+        }
+        
+        grid.innerHTML = '';
+        snapshot.forEach(doc => {
+          const cert = doc.data();
+          const card = document.createElement('div');
+          card.style.cssText = 'background:#1a1a1a;border:1px solid #d4af37;border-radius:0.5rem;padding:1rem;margin-bottom:0.5rem;';
+          card.innerHTML = `
+            <h3 style="color:#d4af37;">${cert.title}</h3>
+            <p style="color:#999;">${cert.teamName}</p>
+            <button onclick="deleteCertificate('${doc.id}')" style="background:#dc3545;color:white;border:none;padding:0.3rem 0.8rem;border-radius:0.3rem;cursor:pointer;">Delete</button>
+          `;
+          grid.appendChild(card);
+        });
+        
+        document.getElementById('totalCertificates').textContent = snapshot.size;
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    async function deleteCertificate(certId) {
+      if (confirm('Delete?')) {
+        await db.collection('certificates').doc(certId).delete();
+        loadCertificates();
+      }
+    }
+
+    // Load Tournaments
+    async function loadTournaments() {
+      try {
+        const snapshot = await db.collection('tournaments').get();
+        const list = document.getElementById('tournamentsList');
+        
+        if (snapshot.empty) {
+          list.innerHTML = '<p style="color:#999;">No tournaments</p>';
+          return;
+        }
+        
+        list.innerHTML = '';
+        snapshot.forEach(doc => {
+          const t = doc.data();
+          const card = document.createElement('div');
+          card.style.cssText = 'background:#1a1a1a;border:1px solid #d4af37;border-radius:0.5rem;padding:1rem;margin-bottom:0.5rem;';
+          card.innerHTML = `
+            <h3 style="color:#d4af37;">${t.name}</h3>
+            <p style="color:#999;">${t.startDate} - ${t.endDate}</p>
+            <p style="color:#999;">Status: ${t.status}</p>
+            <button onclick="deleteTournament('${doc.id}')" style="background:#dc3545;color:white;border:none;padding:0.3rem 0.8rem;border-radius:0.3rem;cursor:pointer;">Delete</button>
+          `;
+          list.appendChild(card);
+        });
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    async function deleteTournament(tournamentId) {
+      if (confirm('Delete?')) {
+        await db.collection('tournaments').doc(tournamentId).delete();
+        loadTournaments();
+      }
+    }
+
+    // Save Tournament
+    async function saveTournament(e) {
+      e.preventDefault();
+      
+      const tournamentData = {
+        name: document.getElementById('tournamentNameInput').value,
+        challongeUrl: document.getElementById('challongeUrlInput').value || null,
+        startDate: document.getElementById('tournamentStartDate').value,
+        endDate: document.getElementById('tournamentEndDate').value,
+        status: document.getElementById('tournamentStatus').value,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      
+      await db.collection('tournaments').add(tournamentData);
+      closeModal('tournamentModal');
+      alert('✅ Tournament created!');
+      loadTournaments();
+    }
+
+    // Save Nickname
+    async function saveNickname(e) {
+      e.preventDefault();
+      const newNickname = document.getElementById('nicknameInput').value.trim();
+      
+      if (!newNickname) {
+        alert('Enter a nickname');
+        return;
+      }
+      
+      currentUser.name = newNickname;
+      localStorage.setItem('daksSystemSession', JSON.stringify(currentUser));
+      document.getElementById('adminName').textContent = newNickname;
+      
+      if (currentUser.userId) {
+        try {
+          await db.collection('admins').doc(currentUser.userId).update({ name: newNickname });
+        } catch (error) {
+          console.warn('Firestore update failed');
+        }
+      }
+      
+      alert('✅ Nickname updated!');
+    }
+
+    // Modal functions
+    function openTeamModal() {
+      document.getElementById('teamModal').style.display = 'block';
+      document.getElementById('teamForm').reset();
+      uploadedLogoUrl = null;
+      document.getElementById('teamLogoPreview').style.display = 'none';
+      document.getElementById('teamLogoInput').value = '';
+    }
+
+    function openTournamentModal() {
+      document.getElementById('tournamentModal').style.display = 'block';
+      document.getElementById('tournamentForm').reset();
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    function showSection(sectionName, event) {
+      document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+      document.getElementById(sectionName).classList.add('active');
+      document.querySelectorAll('.admin-nav-link').forEach(l => l.classList.remove('active'));
+      if (event && event.target) event.target.classList.add('active');
+    }
+
+    function logout() {
+      localStorage.removeItem('daksSystemSession');
+      if (typeof auth !== 'undefined') {
+        auth.signOut().catch(() => {});
+      }
+      window.location.replace('login.html');
+    }
+
+    window.onclick = function(event) {
+      if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+      }
+    }
+  </script>
 </body>
 </html>
