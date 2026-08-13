@@ -29,83 +29,6 @@ body {
   padding: 0 1.5rem;
 }
 
-/* DS Logo */
-.ds-logo-img {
-  width: 45px;
-  height: 45px;
-  object-fit: contain;
-  border-radius: 10px;
-}
-
-/* Hero Banner */
-.hero {
-  position: relative;
-  margin-bottom: 0;
-}
-
-.hero-banner-image {
-  width: 100%;
-  height: auto;
-  max-height: 400px;
-  object-fit: cover;
-  display: block;
-  border-radius: 0 0 1.5rem 1.5rem;
-}
-
-/* Hero Content */
-.hero-content-below {
-  padding: 2rem 1rem;
-  text-align: center;
-  background: linear-gradient(180deg, #1a1a1a 0%, #0b0b0b 100%);
-  border-radius: 0 0 1.5rem 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.hero-heading {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: var(--off-white);
-}
-
-.hero-heading .gold-text {
-  color: var(--gold);
-  text-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
-}
-
-.hero-description {
-  font-size: 1.1rem;
-  color: #bdb6a4;
-  margin-top: 1rem;
-}
-
-/* CTA Button - Blurry Gold */
-.cta-button {
-  background: rgba(212, 175, 55, 0.15);
-  color: var(--gold-soft);
-  border: 1px solid rgba(212, 175, 55, 0.4);
-  padding: 0.8rem 1.5rem;
-  border-radius: 50px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  cursor: pointer;
-  margin-top: 1.5rem;
-  transition: all 0.3s;
-  letter-spacing: 1px;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-}
-
-.cta-button:hover {
-  background: rgba(212, 175, 55, 0.25);
-  border-color: var(--gold);
-  color: var(--gold);
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(212, 175, 55, 0.3);
-}
-
 /* Navigation */
 .navbar {
   display: flex;
@@ -145,6 +68,7 @@ body {
   font-weight: 500;
   font-size: 0.9rem;
   padding: 0.5rem;
+  transition: color 0.3s;
 }
 
 .nav-link:hover {
@@ -176,12 +100,47 @@ body {
   color: var(--gold-soft);
   text-decoration: none;
   backdrop-filter: blur(10px);
+  transition: all 0.3s;
 }
 
 .login-link:hover {
   background: rgba(212, 175, 55, 0.2);
   border-color: var(--gold);
   color: var(--gold);
+}
+
+/* Hero Banner */
+.hero {
+  margin-bottom: 0;
+}
+
+.hero img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 0 0 1rem 1rem;
+}
+
+/* CTA Button */
+.cta-button {
+  background: rgba(212, 175, 55, 0.15);
+  color: var(--gold-soft);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  padding: 0.8rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+}
+
+.cta-button:hover {
+  background: rgba(212, 175, 55, 0.25);
+  border-color: var(--gold);
+  color: var(--gold);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(212, 175, 55, 0.3);
 }
 
 /* Section Titles */
@@ -204,7 +163,7 @@ body {
 
 .team-card {
   background: #111111;
-  border-radius: 1.2rem;
+  border-radius: 1rem;
   overflow: hidden;
   border: 1px solid rgba(212, 175, 55, 0.15);
   transition: all 0.3s;
@@ -217,6 +176,7 @@ body {
   box-shadow: 0 15px 30px rgba(212, 175, 55, 0.2);
 }
 
+/* GLOSSY BANNER PLACEHOLDER */
 .banner-placeholder {
   width: 100%;
   height: 180px;
@@ -226,6 +186,88 @@ body {
   justify-content: center;
   border-bottom: 2px solid var(--gold);
   overflow: hidden;
+  position: relative;
+}
+
+/* Glossy gradient overlay */
+.banner-placeholder::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 25%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.08) 75%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Shine animation sweep */
+.banner-placeholder::after {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.25),
+    transparent
+  );
+  transform: rotate(25deg);
+  animation: shine 3s infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 150%;
+  }
+  100% {
+    left: 150%;
+  }
+}
+
+.banner-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.85) saturate(1.1);
+  transition: all 0.3s;
+}
+
+.team-card:hover .banner-placeholder img {
+  filter: brightness(1) saturate(1.2);
+  transform: scale(1.05);
+}
+
+/* Bottom glass reflection */
+.banner-reflection {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 35%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255, 255, 255, 0.1)
+  );
+  pointer-events: none;
+  z-index: 1;
 }
 
 .team-info {
@@ -234,7 +276,7 @@ body {
 }
 
 .team-name {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--gold);
 }
@@ -242,6 +284,7 @@ body {
 .team-leader {
   color: #999;
   font-size: 0.85rem;
+  margin-top: 0.3rem;
 }
 
 .team-stats {
@@ -256,7 +299,7 @@ body {
 /* Achievements */
 .achievements-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
   margin: 1.5rem 0 3rem;
 }
@@ -291,20 +334,20 @@ body {
 
 .achievement-content h3 {
   color: var(--off-white);
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .achievement-content p {
   color: #999;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .certificate-badge {
   color: var(--gold);
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   background: rgba(212, 175, 55, 0.1);
-  padding: 0.2rem 0.7rem;
+  padding: 0.2rem 0.6rem;
   border-radius: 20px;
 }
 
@@ -343,7 +386,7 @@ body {
   display: block;
 }
 
-/* Registration - Blurry Gold */
+/* Registration */
 .registration-container {
   max-width: 700px;
   margin: 0 auto 3rem;
@@ -369,7 +412,6 @@ body {
 .form-header h3 {
   font-size: 1.5rem;
   color: var(--off-white);
-  margin-bottom: 0.3rem;
 }
 
 .form-header p {
@@ -377,7 +419,7 @@ body {
   font-size: 0.9rem;
 }
 
-/* Google Form Button - Blurry Gold */
+/* Google Form Button */
 .google-form-btn {
   display: inline-flex;
   align-items: center;
@@ -389,12 +431,10 @@ body {
   text-decoration: none;
   font-weight: 700;
   font-size: 1rem;
-  letter-spacing: 1px;
   transition: all 0.3s;
   margin-top: 1rem;
   border: 1px solid rgba(212, 175, 55, 0.4);
   backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
 }
 
 .google-form-btn:hover {
@@ -405,7 +445,7 @@ body {
   box-shadow: 0 15px 35px rgba(212, 175, 55, 0.3);
 }
 
-/* Founder Section */
+/* Founder */
 .founder-section {
   margin: 3rem 0;
   background: rgba(212, 175, 55, 0.04);
@@ -415,8 +455,8 @@ body {
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  text-align: center;
   flex-direction: column;
+  text-align: center;
 }
 
 .founder-avatar {
@@ -484,12 +524,6 @@ body {
 
 /* Tablet */
 @media (min-width: 768px) {
-  .hero-heading {
-    font-size: 3rem;
-  }
-  .section-title {
-    font-size: 2.5rem;
-  }
   .teams-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -504,9 +538,6 @@ body {
 
 /* Desktop */
 @media (min-width: 1024px) {
-  .hero-heading {
-    font-size: 3.5rem;
-  }
   .teams-grid {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -517,10 +548,10 @@ body {
 
 /* Mobile */
 @media (max-width: 480px) {
-  .hero-heading {
-    font-size: 2rem;
-  }
   .section-title {
     font-size: 1.5rem;
+  }
+  .banner-placeholder {
+    height: 150px;
   }
 }
