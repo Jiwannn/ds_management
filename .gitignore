@@ -1,0 +1,10 @@
+# Firebase config with API keys
+firebase-config.js
+
+# Environment variables
+.env
+.env.*
+
+# Never commit these
+*.key
+*.pem
