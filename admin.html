@@ -56,6 +56,9 @@
         <a href="#tournaments" class="admin-nav-link" onclick="showSection('tournaments', event)">
           <i class="fas fa-trophy"></i> Tournaments
         </a>
+        <a href="#announcement" class="admin-nav-link" onclick="showSection('announcement', event)">
+          <i class="fas fa-bullhorn"></i> Announcement
+        </a>
       </nav>
       <div class="admin-footer">
         <a href="index.html" class="back-to-site">
@@ -119,6 +122,34 @@
           <button class="btn-primary" onclick="openTournamentModal()"><i class="fas fa-plus"></i> Create Tournament</button>
         </div>
         <div class="tournaments-list" id="tournamentsList"></div>
+      </section>
+
+      <!-- ANNOUNCEMENT SECTION -->
+      <section id="announcement" class="admin-section">
+        <div class="section-header">
+          <h2>Tournament Announcement</h2>
+        </div>
+        <div class="settings-panel">
+          <form id="announcementForm">
+            <div class="form-group">
+              <label>Announcement Title</label>
+              <input type="text" id="announcementTitleInput" placeholder="e.g., DAKS INVITATIONAL 2025">
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea id="announcementDescInput" rows="3" placeholder="Registration opens soon! Stay tuned!"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Button Text (optional)</label>
+              <input type="text" id="announcementButtonInput" placeholder="e.g., Register Now">
+            </div>
+            <div class="form-group">
+              <label>Button Link (optional)</label>
+              <input type="url" id="announcementLinkInput" placeholder="https://forms.gle/...">
+            </div>
+            <button type="submit" class="btn-primary">Save Announcement</button>
+          </form>
+        </div>
       </section>
     </main>
   </div>
@@ -298,6 +329,33 @@
       });
     }
 
+    // SAVE ANNOUNCEMENT
+    document.getElementById('announcementForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      db.collection('content').doc('announcement').set({
+        title: document.getElementById('announcementTitleInput').value,
+        description: document.getElementById('announcementDescInput').value,
+        buttonText: document.getElementById('announcementButtonInput').value,
+        buttonLink: document.getElementById('announcementLinkInput').value,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        alert('✅ Announcement saved!');
+      });
+    });
+
+    // LOAD ANNOUNCEMENT (for editing)
+    function loadAnnouncement() {
+      db.collection('content').doc('announcement').get().then(doc => {
+        if (doc.exists) {
+          const data = doc.data();
+          document.getElementById('announcementTitleInput').value = data.title || '';
+          document.getElementById('announcementDescInput').value = data.description || '';
+          document.getElementById('announcementButtonInput').value = data.buttonText || '';
+          document.getElementById('announcementLinkInput').value = data.buttonLink || '';
+        }
+      });
+    }
+
     // SAVE TEAM
     document.getElementById('teamForm').addEventListener('submit', function(e) {
       e.preventDefault();
@@ -398,6 +456,7 @@
     loadTeams();
     loadCertificates();
     loadTournaments();
+    loadAnnouncement();
   </script>
 </body>
 </html>

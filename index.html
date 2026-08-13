@@ -31,7 +31,6 @@
     const db = firebase.firestore();
     window.auth = auth;
     window.db = db;
-    console.log('✅ Firebase ready');
   </script>
 </head>
 <body>
@@ -46,7 +45,7 @@
         <a href="#teams" class="nav-link">Teams</a>
         <a href="#achievements" class="nav-link">Achievements</a>
         <a href="tournaments.html" class="nav-link">Tournaments</a>
-        <a href="#register" class="nav-link">Register</a>
+        <a href="#announcement" class="nav-link">Announcement</a>
       </div>
       <div class="nav-actions">
         <div class="founder-badge">FOUNDER · MYLYKES</div>
@@ -57,19 +56,27 @@
 
     <!-- Hero Banner -->
     <header class="hero">
-      <img src="DSBANNER.jpg" alt="DAKS SYSTEM Banner" style="width:100%;height:auto;max-height:400px;object-fit:contain;display:block;" onerror="this.style.display='none'">
+      <img src="DSBANNER.jpg" alt="Banner" style="width:100%;height:auto;max-height:400px;object-fit:contain;" onerror="this.style.display='none'">
     </header>
 
     <!-- Hero Content -->
     <div style="text-align:center;padding:2rem;">
-      <h1 style="color:#f5f1e6;font-size:clamp(1.5rem,4vw,2.5rem);">FORGE YOUR <span style="color:#d4af37;">LEGACY</span></h1>
-      <p style="color:#bdb6a4;margin-top:0.5rem;">Six elite teams. One vision.</p>
-      <button onclick="scrollToSection('register')" class="cta-button" style="margin-top:1rem;">
-        <i class="fas fa-trophy"></i> Register for Tournament
-      </button>
+      <h1 style="color:#f5f1e6;">FORGE YOUR <span style="color:#d4af37;">LEGACY</span></h1>
+      <p style="color:#bdb6a4;">Six elite teams. One vision.</p>
     </div>
 
-    <!-- Teams Section -->
+    <!-- Announcement -->
+    <section id="announcement">
+      <h2 class="section-title">TOURNAMENT ANNOUNCEMENT</h2>
+      <div style="text-align:center;background:rgba(212,175,55,0.05);border:2px solid rgba(212,175,55,0.3);border-radius:1.5rem;padding:2rem;max-width:700px;margin:0 auto;">
+        <i class="fas fa-bullhorn" style="font-size:2.5rem;color:#d4af37;"></i>
+        <h3 id="announcementTitle" style="color:#f5f1e6;margin-top:0.5rem;">Loading...</h3>
+        <p id="announcementDesc" style="color:#999;"></p>
+        <a id="announcementBtn" href="#" target="_blank" style="display:none;background:rgba(212,175,55,0.15);color:#d4af37;padding:0.7rem 1.5rem;border-radius:50px;text-decoration:none;font-weight:700;">Register</a>
+      </div>
+    </section>
+
+    <!-- Teams -->
     <section id="teams">
       <h2 class="section-title">TEAM BANNERS</h2>
       <div class="teams-grid" id="teamsGrid">
@@ -77,21 +84,11 @@
       </div>
     </section>
 
-    <!-- Achievements -->
+    <!-- Achievements/Certificates -->
     <section id="achievements">
       <h2 class="section-title">ACHIEVEMENTS & CERTIFICATES</h2>
-      <div class="achievements-container" id="achievementsContainer">
-        <p style="color:#999;">Loading achievements...</p>
-      </div>
-    </section>
-
-    <!-- Registration -->
-    <section id="register" style="text-align:center;">
-      <h2 class="section-title" style="text-align:left;">TOURNAMENT REGISTRATION</h2>
-      <div style="display:flex;justify-content:center;align-items:center;min-height:150px;">
-        <a href="https://docs.google.com/forms/d/1hhS8IsiMIJGG_-Xv9SyOH_R9wcWcnhMHddG3Gvohi8A/edit" target="_blank" class="google-form-btn" style="display:inline-flex;margin:0 auto;">
-          <i class="fab fa-google"></i> Register Now
-        </a>
+      <div id="achievementsContainer" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;">
+        <p style="color:#999;">Loading...</p>
       </div>
     </section>
 
@@ -127,7 +124,25 @@
       }
     }
 
-    // Load Teams
+    // Load Announcement
+    async function loadAnnouncement() {
+      try {
+        const doc = await db.collection('content').doc('announcement').get();
+        if (doc.exists) {
+          const data = doc.data();
+          document.getElementById('announcementTitle').textContent = data.title || 'No announcement';
+          document.getElementById('announcementDesc').textContent = data.description || '';
+          if (data.buttonText && data.buttonLink) {
+            const btn = document.getElementById('announcementBtn');
+            btn.textContent = data.buttonText;
+            btn.href = data.buttonLink;
+            btn.style.display = 'inline-block';
+          }
+        }
+      } catch (error) { console.error(error); }
+    }
+
+    // Load Teams - NO WINS
     async function loadTeams() {
       const grid = document.getElementById('teamsGrid');
       try {
@@ -162,7 +177,6 @@
       }
     }
 
-    // Open Team Modal
     function openTeamModal(teamId) {
       const team = allTeams.find(t => t.id === teamId);
       if (!team) return;
@@ -173,61 +187,49 @@
         <h2 style="color:#d4af37;">${team.name}</h2>
         ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:100%;height:200px;object-fit:contain;background:#0b0b0b;border-radius:10px;margin:1rem 0;">` : ''}
         <p><strong>Captain:</strong> ${team.captain}</p>
-        <p><strong>Wins:</strong> ${team.wins || 0}</p>
         <h3 style="color:#d4af37;margin-top:1rem;">👥 TEAM PLAYERS</h3>
-        ${members.length > 0 ? members.map((p, i) => `<div style="padding:0.5rem;background:#111;border-radius:0.3rem;margin-bottom:0.3rem;color:white;"><span style="color:#d4af37;">${i + 1}.</span> ${p}</div>`).join('') : '<p style="color:#999;">No players listed</p>'}
+        ${members.length > 0 ? members.map((p, i) => `<div style="padding:0.5rem;background:#111;border-radius:0.3rem;margin-bottom:0.3rem;color:white;"><span style="color:#d4af37;">${i + 1}.</span> ${p}</div>`).join('') : '<p style="color:#999;">No players</p>'}
       `;
       modal.style.display = 'block';
     }
 
-    function closeModal() {
-      document.getElementById('teamModal').style.display = 'none';
-    }
+    function closeModal() { document.getElementById('teamModal').style.display = 'none'; }
+    window.onclick = function(event) { if (event.target.classList.contains('modal')) event.target.style.display = 'none'; }
 
-    window.onclick = function(event) {
-      if (event.target.classList.contains('modal')) {
-        event.target.style.display = 'none';
-      }
-    }
-
-    // Load Achievements/Certificates
+    // Load Certificates - TEXT BELOW IMAGE
     async function loadAchievements() {
       const container = document.getElementById('achievementsContainer');
       try {
         const snapshot = await db.collection('certificates').orderBy('createdAt', 'desc').get();
         if (snapshot.empty) {
-          container.innerHTML = '<p style="color:#999;">Tournament winners will appear here!</p>';
+          container.innerHTML = '<p style="color:#999;">No certificates yet</p>';
           return;
         }
         container.innerHTML = '';
         snapshot.forEach(doc => {
           const cert = doc.data();
           const card = document.createElement('div');
-          card.className = 'achievement-card';
+          card.style.cssText = 'background:#111;border:2px solid #d4af37;border-radius:1rem;overflow:hidden;text-align:center;';
           card.innerHTML = `
-            ${cert.imageUrl ? `<img src="${cert.imageUrl}" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;">` : '<i class="fas fa-trophy" style="font-size:2rem;color:#d4af37;"></i>'}
-            <div>
-              <h3 style="color:#d4af37;">${cert.title}</h3>
-              <p style="color:white;font-weight:700;">🏆 ${cert.teamName}</p>
+            ${cert.imageUrl ? `<img src="${cert.imageUrl}" style="width:100%;max-height:250px;object-fit:contain;background:#0b0b0b;display:block;">` : ''}
+            <div style="padding:1rem;">
+              <h3 style="color:#d4af37;margin:0;">${cert.title}</h3>
+              <p style="color:white;font-weight:700;margin:0.5rem 0 0;">🏆 ${cert.teamName}</p>
             </div>
           `;
           container.appendChild(card);
         });
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    function scrollToSection(id) {
-      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+      } catch (error) { console.error(error); }
     }
 
     // Initialize
     checkSession();
+    loadAnnouncement();
     loadTeams();
     loadAchievements();
 
-    // Real-time auto-reload
+    // Real-time
+    db.collection('content').doc('announcement').onSnapshot(() => loadAnnouncement());
     db.collection('teams').onSnapshot(() => loadTeams());
     db.collection('certificates').onSnapshot(() => loadAchievements());
   </script>
