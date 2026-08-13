@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DAKS SYSTEM · ADMIN</title>
+  <title>DAKS SYSTEM · ADMIN DASHBOARD</title>
   <link rel="icon" type="image/png" href="DSLOGO.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="admin-styles.css">
   
@@ -28,225 +31,243 @@
     const db = firebase.firestore();
     window.auth = auth;
     window.db = db;
-    console.log('✅ Firebase ready');
   </script>
 </head>
 <body>
-  <div style="display:flex;min-height:100vh;">
+  <div class="admin-container">
     <!-- Sidebar -->
-    <aside style="width:250px;background:#1a1a1a;padding:1rem;">
-      <h2 style="color:#d4af37;">DAKS SYSTEM</h2>
-      <p style="color:#999;">Admin Panel</p>
-      <nav style="margin-top:1rem;">
-        <button onclick="showSection('dashboard', event)" style="display:block;width:100%;background:none;border:none;color:#c9b37e;padding:0.5rem;cursor:pointer;text-align:left;">📊 Dashboard</button>
-        <button onclick="showSection('teams', event)" style="display:block;width:100%;background:none;border:none;color:#c9b37e;padding:0.5rem;cursor:pointer;text-align:left;">👥 Teams</button>
-        <button onclick="showSection('certificates', event)" style="display:block;width:100%;background:none;border:none;color:#c9b37e;padding:0.5rem;cursor:pointer;text-align:left;">🏆 Certificates</button>
-        <button onclick="showSection('tournaments', event)" style="display:block;width:100%;background:none;border:none;color:#c9b37e;padding:0.5rem;cursor:pointer;text-align:left;">🎮 Tournaments</button>
+    <aside class="admin-sidebar">
+      <div class="admin-logo">
+        <i class="fas fa-crown"></i>
+        <span>DAKS SYSTEM</span>
+        <small>ADMIN</small>
+      </div>
+      <nav class="admin-nav">
+        <a href="#dashboard" class="admin-nav-link active" onclick="showSection('dashboard', event)">
+          <i class="fas fa-chart-line"></i> Dashboard
+        </a>
+        <a href="#teams" class="admin-nav-link" onclick="showSection('teams', event)">
+          <i class="fas fa-users"></i> Teams
+        </a>
+        <a href="#certificates" class="admin-nav-link" onclick="showSection('certificates', event)">
+          <i class="fas fa-certificate"></i> Certificates
+        </a>
+        <a href="#tournaments" class="admin-nav-link" onclick="showSection('tournaments', event)">
+          <i class="fas fa-trophy"></i> Tournaments
+        </a>
       </nav>
-      <hr style="border-color:#333;margin:1rem 0;">
-      <a href="index.html" style="display:block;color:#c9b37e;padding:0.5rem;text-decoration:none;">← Website</a>
-      <button onclick="logout()" style="background:#dc3545;color:white;border:none;padding:0.5rem 1rem;border-radius:0.5rem;cursor:pointer;width:100%;margin-top:0.5rem;">🚪 Logout</button>
+      <div class="admin-footer">
+        <a href="index.html" class="back-to-site">
+          <i class="fas fa-arrow-left"></i> Back to Website
+        </a>
+        <button onclick="logout()" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
     </aside>
 
     <!-- Main Content -->
-    <main style="flex:1;padding:2rem;background:#0b0b0b;">
-      <h1 id="pageTitle" style="color:#d4af37;">Dashboard</h1>
-      <p style="color:#999;">Welcome, <span id="adminName">Admin</span></p>
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <h1 id="pageTitle">Dashboard</h1>
+        <div class="admin-profile">
+          <span id="adminName">Admin</span>
+          <i class="fas fa-user-shield"></i>
+        </div>
+      </header>
 
       <!-- Dashboard -->
-      <section id="dashboard" class="admin-section">
-        <div style="display:flex;gap:1rem;margin-top:1rem;">
-          <div style="background:#1a1a1a;padding:1rem;border-radius:0.5rem;flex:1;text-align:center;border:1px solid #d4af37;">
-            <h3 id="totalTeams" style="color:#d4af37;">0</h3>
-            <p style="color:#999;">Teams</p>
+      <section id="dashboard" class="admin-section active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <i class="fas fa-users stat-icon"></i>
+            <div class="stat-info"><h3 id="totalTeams">0</h3><p>Teams</p></div>
           </div>
-          <div style="background:#1a1a1a;padding:1rem;border-radius:0.5rem;flex:1;text-align:center;border:1px solid #d4af37;">
-            <h3 id="totalCertificates" style="color:#d4af37;">0</h3>
-            <p style="color:#999;">Certificates</p>
+          <div class="stat-card">
+            <i class="fas fa-certificate stat-icon"></i>
+            <div class="stat-info"><h3 id="totalCertificates">0</h3><p>Certificates</p></div>
           </div>
         </div>
       </section>
 
       <!-- Teams -->
-      <section id="teams" class="admin-section" style="display:none;">
-        <h2 style="color:#d4af37;">Teams Management</h2>
-        <button onclick="openTeamModal()" style="background:#d4af37;color:black;border:none;padding:0.5rem 1rem;border-radius:0.5rem;cursor:pointer;font-weight:700;">+ Add Team</button>
-        <div id="teamsList" style="margin-top:1rem;"></div>
+      <section id="teams" class="admin-section">
+        <div class="section-header">
+          <h2>Teams Management</h2>
+          <button class="btn-primary" onclick="openTeamModal()"><i class="fas fa-plus"></i> Add Team</button>
+        </div>
+        <table class="admin-table">
+          <thead><tr><th>Name</th><th>Captain</th><th>Actions</th></tr></thead>
+          <tbody id="teamsTableBody"></tbody>
+        </table>
       </section>
 
       <!-- Certificates -->
-      <section id="certificates" class="admin-section" style="display:none;">
-        <h2 style="color:#d4af37;">Certificate Management</h2>
-        <button onclick="openCertificateModal()" style="background:#d4af37;color:black;border:none;padding:0.5rem 1rem;border-radius:0.5rem;cursor:pointer;font-weight:700;">+ Add Certificate</button>
-        <div id="certificatesList" style="margin-top:1rem;"></div>
+      <section id="certificates" class="admin-section">
+        <div class="section-header">
+          <h2>Certificate Management</h2>
+          <button class="btn-primary" onclick="openCertificateModal()"><i class="fas fa-plus"></i> Upload Certificate</button>
+        </div>
+        <div class="certificates-grid" id="certificatesGrid"></div>
       </section>
 
       <!-- Tournaments -->
-      <section id="tournaments" class="admin-section" style="display:none;">
-        <h2 style="color:#d4af37;">Tournament Management</h2>
-        <button onclick="openTournamentModal()" style="background:#d4af37;color:black;border:none;padding:0.5rem 1rem;border-radius:0.5rem;cursor:pointer;font-weight:700;">+ Create Tournament</button>
-        <div id="tournamentsList" style="margin-top:1rem;"></div>
+      <section id="tournaments" class="admin-section">
+        <div class="section-header">
+          <h2>Tournaments</h2>
+          <button class="btn-primary" onclick="openTournamentModal()"><i class="fas fa-plus"></i> Create</button>
+        </div>
+        <div class="tournaments-list" id="tournamentsList"></div>
       </section>
     </main>
   </div>
 
   <!-- Team Modal -->
-  <div id="teamModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:1000;">
-    <div style="background:#1a1a1a;margin:10% auto;padding:2rem;border-radius:1rem;max-width:400px;border:2px solid #d4af37;">
-      <h2 style="color:#d4af37;">Add Team</h2>
+  <div id="teamModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal('teamModal')">&times;</span>
+      <h2>Add Team</h2>
       <form id="teamForm">
-        <input type="text" id="teamNameInput" placeholder="Team Name" required style="width:100%;padding:0.5rem;margin-bottom:0.5rem;border-radius:0.3rem;border:1px solid #d4af37;background:#0b0b0b;color:white;">
-        <input type="text" id="captainNameInput" placeholder="Captain" required style="width:100%;padding:0.5rem;margin-bottom:0.5rem;border-radius:0.3rem;border:1px solid #d4af37;background:#0b0b0b;color:white;">
-        <input type="text" id="teamMembersInput" placeholder="Members (comma separated)" style="width:100%;padding:0.5rem;margin-bottom:0.5rem;border-radius:0.3rem;border:1px solid #d4af37;background:#0b0b0b;color:white;">
-        <button type="submit" style="background:#d4af37;color:black;border:none;padding:0.5rem;border-radius:0.3rem;cursor:pointer;width:100%;font-weight:700;">Save Team</button>
+        <div class="form-group"><label>Team Name</label><input type="text" id="teamNameInput" required></div>
+        <div class="form-group"><label>Captain</label><input type="text" id="captainNameInput" required></div>
+        <div class="form-group"><label>Members</label><input type="text" id="teamMembersInput"></div>
+        <button type="submit" class="btn-primary">Save Team</button>
       </form>
-      <button onclick="closeModal('teamModal')" style="background:transparent;color:#d4af37;border:none;cursor:pointer;margin-top:0.5rem;width:100%;">Close</button>
     </div>
   </div>
 
-  <!-- Certificate Modal -->
-  <div id="certificateModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:1000;">
-    <div style="background:#1a1a1a;margin:10% auto;padding:2rem;border-radius:1rem;max-width:400px;border:2px solid #d4af37;">
-      <h2 style="color:#d4af37;">Add Certificate</h2>
+  <!-- Certificate Modal with IMAGE UPLOAD -->
+  <div id="certificateModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal('certificateModal')">&times;</span>
+      <h2>Upload Certificate</h2>
       <form id="certificateForm">
-        <select id="certTeamSelect" required style="width:100%;padding:0.5rem;margin-bottom:0.5rem;border-radius:0.3rem;border:1px solid #d4af37;background:#0b0b0b;color:white;">
-          <option value="">Select Winning Team</option>
-        </select>
-        <input type="text" id="certTitle" placeholder="Achievement Title (e.g., Champion)" required style="width:100%;padding:0.5rem;margin-bottom:0.5rem;border-radius:0.3rem;border:1px solid #d4af37;background:#0b0b0b;color:white;">
-        <input type="text" id="certDescription" placeholder="Description" style="width:100%;padding:0.5rem;margin-bottom:0.5rem;border-radius:0.3rem;border:1px solid #d4af37;background:#0b0b0b;color:white;">
-        <input type="date" id="certDate" required style="width:100%;padding:0.5rem;margin-bottom:0.5rem;border-radius:0.3rem;border:1px solid #d4af37;background:#0b0b0b;color:white;">
-        <button type="submit" style="background:#d4af37;color:black;border:none;padding:0.5rem;border-radius:0.3rem;cursor:pointer;width:100%;font-weight:700;">Issue Certificate</button>
+        <div class="form-group">
+          <label>Certificate Image (You provide the design)</label>
+          <input type="file" id="certImageInput" accept="image/*" onchange="previewCertImage(event)" required>
+          <img id="certImagePreview" style="display:none;width:100%;max-height:200px;object-fit:contain;margin-top:0.5rem;border-radius:10px;border:2px solid #d4af37;">
+        </div>
+        <div class="form-group"><label>Winning Team Name</label><input type="text" id="certTeamName" required></div>
+        <div class="form-group"><label>Achievement Title</label><input type="text" id="certTitle" required></div>
+        <button type="submit" class="btn-primary">Upload Certificate</button>
       </form>
-      <button onclick="closeModal('certificateModal')" style="background:transparent;color:#d4af37;border:none;cursor:pointer;margin-top:0.5rem;width:100%;">Close</button>
     </div>
   </div>
 
   <!-- Tournament Modal -->
-  <div id="tournamentModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:1000;">
-    <div style="background:#1a1a1a;margin:10% auto;padding:2rem;border-radius:1rem;max-width:400px;border:2px solid #d4af37;">
-      <h2 style="color:#d4af37;">Create Tournament</h2>
+  <div id="tournamentModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal('tournamentModal')">&times;</span>
+      <h2>Create Tournament</h2>
       <form id="tournamentForm">
-        <input type="text" id="tournamentNameInput" placeholder="Tournament Name" required style="width:100%;padding:0.5rem;margin-bottom:0.5rem;border-radius:0.3rem;border:1px solid #d4af37;background:#0b0b0b;color:white;">
-        <input type="url" id="challongeUrlInput" placeholder="Challonge URL" style="width:100%;padding:0.5rem;margin-bottom:0.5rem;border-radius:0.3rem;border:1px solid #d4af37;background:#0b0b0b;color:white;">
-        <input type="date" id="tournamentStartDate" required style="width:100%;padding:0.5rem;margin-bottom:0.5rem;border-radius:0.3rem;border:1px solid #d4af37;background:#0b0b0b;color:white;">
-        <input type="date" id="tournamentEndDate" required style="width:100%;padding:0.5rem;margin-bottom:0.5rem;border-radius:0.3rem;border:1px solid #d4af37;background:#0b0b0b;color:white;">
-        <select id="tournamentStatus" style="width:100%;padding:0.5rem;margin-bottom:0.5rem;border-radius:0.3rem;border:1px solid #d4af37;background:#0b0b0b;color:white;">
-          <option value="upcoming">Upcoming</option>
-          <option value="active">Active</option>
-          <option value="completed">Completed</option>
-        </select>
-        <button type="submit" style="background:#d4af37;color:black;border:none;padding:0.5rem;border-radius:0.3rem;cursor:pointer;width:100%;font-weight:700;">Create</button>
+        <div class="form-group"><label>Name</label><input type="text" id="tournamentNameInput" required></div>
+        <div class="form-group"><label>Challonge URL</label><input type="url" id="challongeUrlInput"></div>
+        <div class="form-group"><label>Start Date</label><input type="date" id="tournamentStartDate" required></div>
+        <div class="form-group"><label>End Date</label><input type="date" id="tournamentEndDate" required></div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="tournamentStatus">
+            <option value="upcoming">Upcoming</option>
+            <option value="active">Active</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-primary">Create</button>
       </form>
-      <button onclick="closeModal('tournamentModal')" style="background:transparent;color:#d4af37;border:none;cursor:pointer;margin-top:0.5rem;width:100%;">Close</button>
     </div>
   </div>
 
   <script>
+    let certImageData = null;
+
     // Check session
     const session = localStorage.getItem('daksSystemSession');
     if (!session) {
       window.location.replace('login.html');
     } else {
-      const userData = JSON.parse(session);
-      document.getElementById('adminName').textContent = userData.name || 'Admin';
+      document.getElementById('adminName').textContent = JSON.parse(session).name || 'Admin';
     }
 
     // Load Teams
     function loadTeams() {
       db.collection('teams').get().then(snapshot => {
         document.getElementById('totalTeams').textContent = snapshot.size;
-        const list = document.getElementById('teamsList');
-        list.innerHTML = '';
-        
-        if (snapshot.empty) {
-          list.innerHTML = '<p style="color:#999;">No teams</p>';
-          return;
-        }
-        
+        const tbody = document.getElementById('teamsTableBody');
+        tbody.innerHTML = '';
         snapshot.forEach(doc => {
           const team = doc.data();
-          const div = document.createElement('div');
-          div.style.cssText = 'background:#1a1a1a;border:1px solid #d4af37;border-radius:0.5rem;padding:0.75rem;margin-bottom:0.5rem;';
-          div.innerHTML = `<strong style="color:#d4af37;">${team.name}</strong> - <span style="color:#999;">${team.captain}</span> <button onclick="deleteTeam('${doc.id}')" style="background:#dc3545;color:white;border:none;padding:0.2rem 0.5rem;border-radius:0.3rem;cursor:pointer;float:right;">Delete</button>`;
-          list.appendChild(div);
+          tbody.innerHTML += `<tr><td>${team.name}</td><td>${team.captain}</td><td><button class="btn-danger" onclick="deleteTeam('${doc.id}')">Delete</button></td></tr>`;
         });
       });
     }
 
-    // Load Certificates
+    // Load Certificates with IMAGES
     function loadCertificates() {
       db.collection('certificates').get().then(snapshot => {
         document.getElementById('totalCertificates').textContent = snapshot.size;
-        const list = document.getElementById('certificatesList');
-        list.innerHTML = '';
-        
-        if (snapshot.empty) {
-          list.innerHTML = '<p style="color:#999;">No certificates</p>';
-          return;
-        }
-        
+        const grid = document.getElementById('certificatesGrid');
+        grid.innerHTML = '';
         snapshot.forEach(doc => {
           const cert = doc.data();
-          const div = document.createElement('div');
-          div.style.cssText = 'background:#1a1a1a;border:1px solid #d4af37;border-radius:0.5rem;padding:0.75rem;margin-bottom:0.5rem;';
-          div.innerHTML = `<strong style="color:#d4af37;">🏆 ${cert.title}</strong> - <span style="color:white;">${cert.teamName}</span> <button onclick="deleteCertificate('${doc.id}')" style="background:#dc3545;color:white;border:none;padding:0.2rem 0.5rem;border-radius:0.3rem;cursor:pointer;float:right;">Delete</button>`;
-          list.appendChild(div);
+          grid.innerHTML += `
+            <div class="certificate-card">
+              ${cert.imageUrl ? `<img src="${cert.imageUrl}" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;margin-bottom:1rem;">` : '<i class="fas fa-certificate certificate-icon"></i>'}
+              <h3 class="certificate-title">${cert.title}</h3>
+              <p class="certificate-team">${cert.teamName}</p>
+              <button class="btn-danger" onclick="deleteCertificate('${doc.id}')">Delete</button>
+            </div>
+          `;
         });
       });
     }
 
-    // Populate team select for certificate
-    function populateTeamSelect() {
-      db.collection('teams').get().then(snapshot => {
-        const select = document.getElementById('certTeamSelect');
-        snapshot.forEach(doc => {
-          const opt = document.createElement('option');
-          opt.value = doc.id;
-          opt.textContent = doc.data().name;
-          select.appendChild(opt);
-        });
-      });
+    // Preview certificate image
+    function previewCertImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        certImageData = e.target.result;
+        document.getElementById('certImagePreview').src = e.target.result;
+        document.getElementById('certImagePreview').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
     }
 
-    // Team Form
+    // Save Certificate with IMAGE
+    document.getElementById('certificateForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      db.collection('certificates').add({
+        imageUrl: certImageData || null,
+        teamName: document.getElementById('certTeamName').value,
+        title: document.getElementById('certTitle').value,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        closeModal('certificateModal');
+        alert('✅ Certificate uploaded!');
+        certImageData = null;
+        this.reset();
+        document.getElementById('certImagePreview').style.display = 'none';
+        loadCertificates();
+      });
+    });
+
+    // Team form
     document.getElementById('teamForm').addEventListener('submit', function(e) {
       e.preventDefault();
       db.collection('teams').add({
         name: document.getElementById('teamNameInput').value,
         captain: document.getElementById('captainNameInput').value,
-        members: document.getElementById('teamMembersInput').value.split(',').map(m => m.trim()).filter(m => m),
-        wins: 0,
-        rating: 4.5,
+        members: document.getElementById('teamMembersInput').value.split(',').map(m => m.trim()),
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       }).then(() => {
         closeModal('teamModal');
-        alert('✅ Team added!');
         this.reset();
         loadTeams();
       });
     });
 
-    // Certificate Form
-    document.getElementById('certificateForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const teamId = document.getElementById('certTeamSelect').value;
-      const teamName = document.getElementById('certTeamSelect').selectedOptions[0]?.text || 'Team';
-      
-      db.collection('certificates').add({
-        teamName: teamName,
-        title: document.getElementById('certTitle').value,
-        description: document.getElementById('certDescription').value,
-        date: document.getElementById('certDate').value,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(() => {
-        closeModal('certificateModal');
-        alert('✅ Certificate issued!');
-        this.reset();
-        loadCertificates();
-      });
-    });
-
-    // Tournament Form
+    // Tournament form
     document.getElementById('tournamentForm').addEventListener('submit', function(e) {
       e.preventDefault();
       db.collection('tournaments').add({
@@ -258,50 +279,23 @@
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       }).then(() => {
         closeModal('tournamentModal');
-        alert('✅ Tournament created!');
         this.reset();
       });
     });
 
-    // Delete functions
-    function deleteTeam(id) {
-      if (confirm('Delete team?')) {
-        db.collection('teams').doc(id).delete().then(() => loadTeams());
-      }
-    }
+    function deleteTeam(id) { if (confirm('Delete?')) db.collection('teams').doc(id).delete().then(() => loadTeams()); }
+    function deleteCertificate(id) { if (confirm('Delete?')) db.collection('certificates').doc(id).delete().then(() => loadCertificates()); }
 
-    function deleteCertificate(id) {
-      if (confirm('Delete certificate?')) {
-        db.collection('certificates').doc(id).delete().then(() => loadCertificates());
-      }
-    }
-
-    // Modal functions
-    function openTeamModal() {
-      document.getElementById('teamModal').style.display = 'block';
-      document.getElementById('teamForm').reset();
-    }
-
-    function openCertificateModal() {
-      document.getElementById('certificateModal').style.display = 'block';
-      document.getElementById('certificateForm').reset();
-      document.getElementById('certDate').value = new Date().toISOString().split('T')[0];
-      populateTeamSelect();
-    }
-
-    function openTournamentModal() {
-      document.getElementById('tournamentModal').style.display = 'block';
-      document.getElementById('tournamentForm').reset();
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).style.display = 'none';
-    }
+    function openTeamModal() { document.getElementById('teamModal').style.display = 'block'; document.getElementById('teamForm').reset(); }
+    function openCertificateModal() { document.getElementById('certificateModal').style.display = 'block'; document.getElementById('certificateForm').reset(); certImageData = null; document.getElementById('certImagePreview').style.display = 'none'; }
+    function openTournamentModal() { document.getElementById('tournamentModal').style.display = 'block'; document.getElementById('tournamentForm').reset(); }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     function showSection(sectionName, event) {
-      document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
-      document.getElementById(sectionName).style.display = 'block';
-      document.getElementById('pageTitle').textContent = sectionName.charAt(0).toUpperCase() + sectionName.slice(1);
+      document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+      document.getElementById(sectionName).classList.add('active');
+      document.querySelectorAll('.admin-nav-link').forEach(l => l.classList.remove('active'));
+      if (event && event.target) event.target.classList.add('active');
     }
 
     function logout() {
@@ -310,7 +304,6 @@
       window.location.replace('login.html');
     }
 
-    // Initialize
     loadTeams();
     loadCertificates();
   </script>
