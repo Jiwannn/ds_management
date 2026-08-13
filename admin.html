@@ -16,7 +16,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
   
-  <!-- Firebase Config INLINE -->
+  <!-- Firebase Config -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCMKpB_BwOQ_KxwUKI9v-l3ND_n5FQQQbE",
@@ -74,7 +74,7 @@
           <h2>Teams Management</h2>
           <button class="btn-primary" onclick="openTeamModal()">+ Add Team</button>
         </div>
-        <p style="color:#999;margin-bottom:1rem;">🖱️ Drag and drop team banners to reorder</p>
+        <p style="color:#999;margin-bottom:1rem;">🖱️ Drag cards to reorder teams</p>
         <div id="teamsDragContainer" style="display:flex;flex-direction:column;gap:0.5rem;">
           <p style="color:#999;">Loading teams...</p>
         </div>
@@ -108,52 +108,24 @@
         </form>
       </section>
 
-      <!-- SETTINGS - HERO CONTENT -->
+      <!-- SETTINGS -->
       <section id="settings" class="admin-section">
         <div class="section-header"><h2>Website Settings</h2></div>
-        
-        <div class="settings-panel" style="background:#1a1a1a;border:1px solid #d4af37;border-radius:0.5rem;padding:1.5rem;margin-bottom:1rem;">
+        <div style="background:#1a1a1a;border:1px solid #d4af37;border-radius:0.5rem;padding:1.5rem;margin-bottom:1rem;">
           <h3 style="color:#d4af37;">Hero Section</h3>
           <form id="heroForm">
-            <div class="form-group">
-              <label>Subtitle</label>
-              <input type="text" id="heroSubtitleInput" placeholder="e.g., premium esports management">
-            </div>
-            <div class="form-group">
-              <label>Main Title</label>
-              <input type="text" id="heroTitleInput" placeholder="e.g., FORGE YOUR">
-            </div>
-            <div class="form-group">
-              <label>Highlighted Text (Gold)</label>
-              <input type="text" id="heroHighlightInput" placeholder="e.g., LEGACY">
-            </div>
-            <div class="form-group">
-              <label>Description</label>
-              <textarea id="heroDescInput" rows="3" placeholder="e.g., Six elite teams. One vision."></textarea>
-            </div>
-            <button type="submit" class="btn-primary">Save Hero Content</button>
-          </form>
-        </div>
-        
-        <div class="settings-panel" style="background:#1a1a1a;border:1px solid #d4af37;border-radius:0.5rem;padding:1.5rem;">
-          <h3 style="color:#d4af37;">Founder Section</h3>
-          <form id="founderForm">
-            <div class="form-group">
-              <label>Founder Name</label>
-              <input type="text" id="founderNameInput" placeholder="e.g., MYLYKES">
-            </div>
-            <div class="form-group">
-              <label>Founder Quote</label>
-              <textarea id="founderQuoteInput" rows="3" placeholder="Enter quote..."></textarea>
-            </div>
-            <button type="submit" class="btn-primary">Save Founder</button>
+            <div class="form-group"><label>Subtitle</label><input type="text" id="heroSubtitleInput"></div>
+            <div class="form-group"><label>Title</label><input type="text" id="heroTitleInput"></div>
+            <div class="form-group"><label>Highlight</label><input type="text" id="heroHighlightInput"></div>
+            <div class="form-group"><label>Description</label><textarea id="heroDescInput" rows="3"></textarea></div>
+            <button type="submit" class="btn-primary">Save Hero</button>
           </form>
         </div>
       </section>
     </main>
   </div>
 
-  <!-- Team Modal -->
+  <!-- Modals -->
   <div id="teamModal" class="modal">
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal('teamModal')">&times;</span>
@@ -173,7 +145,6 @@
     </div>
   </div>
 
-  <!-- Certificate Modal -->
   <div id="certificateModal" class="modal">
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal('certificateModal')">&times;</span>
@@ -191,7 +162,6 @@
     </div>
   </div>
 
-  <!-- Tournament Modal -->
   <div id="tournamentModal" class="modal">
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal('tournamentModal')">&times;</span>
@@ -260,7 +230,7 @@
       reader.readAsDataURL(file);
     }
 
-    // LOAD TEAMS - DRAGGABLE
+    // LOAD TEAMS WITH DRAG AND DROP
     function loadTeams() {
       db.collection('teams').get().then(snapshot => {
         document.getElementById('totalTeams').textContent = snapshot.size;
@@ -286,28 +256,40 @@
           const card = document.createElement('div');
           card.setAttribute('draggable', 'true');
           card.dataset.teamId = team.id;
-          card.style.cssText = 'display:flex;align-items:center;gap:1rem;background:#1a1a1a;border:1px solid #d4af37;border-radius:0.5rem;padding:0.75rem;cursor:grab;transition:all 0.3s;';
+          card.style.cssText = 'display:flex;align-items:center;gap:1rem;background:#1a1a1a;border:2px solid #d4af37;border-radius:0.5rem;padding:0.75rem;cursor:grab;transition:all 0.3s;';
           
+          // DRAG EVENTS
           card.addEventListener('dragstart', function(e) {
             draggedTeamId = team.id;
-            this.style.opacity = '0.5';
+            this.style.opacity = '0.4';
+            this.style.borderStyle = 'dashed';
+            e.dataTransfer.effectAllowed = 'move';
           });
+          
           card.addEventListener('dragend', function() {
             this.style.opacity = '1';
+            this.style.borderStyle = 'solid';
           });
+          
           card.addEventListener('dragover', function(e) {
             e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
             this.style.borderColor = '#f0d68a';
             this.style.background = '#2a2a2a';
+            this.style.transform = 'scale(1.02)';
           });
+          
           card.addEventListener('dragleave', function() {
             this.style.borderColor = '#d4af37';
             this.style.background = '#1a1a1a';
+            this.style.transform = 'scale(1)';
           });
+          
           card.addEventListener('drop', function(e) {
             e.preventDefault();
             this.style.borderColor = '#d4af37';
             this.style.background = '#1a1a1a';
+            this.style.transform = 'scale(1)';
             const targetTeamId = this.dataset.teamId;
             if (draggedTeamId && draggedTeamId !== targetTeamId) {
               reorderTeams(draggedTeamId, targetTeamId);
@@ -316,12 +298,12 @@
           
           card.innerHTML = `
             <span style="color:#d4af37;font-weight:700;width:30px;">${index + 1}</span>
-            ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:60px;height:60px;object-fit:cover;border-radius:10px;">` : '<span style="font-size:2rem;">🏆</span>'}
+            ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:60px;height:60px;object-fit:cover;border-radius:10px;" draggable="false">` : '<span style="font-size:2rem;">🏆</span>'}
             <div style="flex:1;">
               <strong style="color:white;">${team.name}</strong>
               <p style="color:#999;margin:0;">Captain: ${team.captain}</p>
             </div>
-            <span style="color:#999;">⠿ Drag</span>
+            <span style="color:#666;font-size:1.2rem;">⠿</span>
             <button onclick="deleteTeam('${team.id}')" style="background:rgba(220,53,69,0.1);border:1px solid rgba(220,53,69,0.3);color:#ff6b7a;padding:0.3rem 0.6rem;border-radius:0.3rem;cursor:pointer;">🗑️</button>
           `;
           
@@ -330,6 +312,7 @@
       });
     }
 
+    // REORDER TEAMS
     async function reorderTeams(draggedId, targetId) {
       const teams = [];
       const snapshot = await db.collection('teams').get();
@@ -388,51 +371,6 @@
             </div>
           `;
         });
-      });
-    }
-
-    // SAVE HERO CONTENT
-    document.getElementById('heroForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      db.collection('content').doc('hero').set({
-        subtitle: document.getElementById('heroSubtitleInput').value,
-        title: document.getElementById('heroTitleInput').value,
-        highlight: document.getElementById('heroHighlightInput').value,
-        description: document.getElementById('heroDescInput').value,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(() => alert('✅ Hero content saved!'));
-    });
-
-    // LOAD HERO CONTENT
-    function loadHeroContent() {
-      db.collection('content').doc('hero').get().then(doc => {
-        if (doc.exists) {
-          const data = doc.data();
-          document.getElementById('heroSubtitleInput').value = data.subtitle || '';
-          document.getElementById('heroTitleInput').value = data.title || '';
-          document.getElementById('heroHighlightInput').value = data.highlight || '';
-          document.getElementById('heroDescInput').value = data.description || '';
-        }
-      });
-    }
-
-    // SAVE FOUNDER
-    document.getElementById('founderForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      db.collection('content').doc('founder').set({
-        name: document.getElementById('founderNameInput').value,
-        quote: document.getElementById('founderQuoteInput').value,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(() => alert('✅ Founder saved!'));
-    });
-
-    function loadFounderContent() {
-      db.collection('content').doc('founder').get().then(doc => {
-        if (doc.exists) {
-          const data = doc.data();
-          document.getElementById('founderNameInput').value = data.name || '';
-          document.getElementById('founderQuoteInput').value = data.quote || '';
-        }
       });
     }
 
@@ -524,9 +462,6 @@
       window.location.replace('login.html');
     }
 
-    // INITIALIZE
-    loadHeroContent();
-    loadFounderContent();
     loadTeams();
     loadCertificates();
     loadTournaments();
