@@ -16,7 +16,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
   
-  <!-- Firebase Config INLINE -->
+  <!-- Firebase Config -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCMKpB_BwOQ_KxwUKI9v-l3ND_n5FQQQbE",
@@ -31,7 +31,6 @@
     const db = firebase.firestore();
     window.auth = auth;
     window.db = db;
-    console.log('✅ Firebase ready');
   </script>
 </head>
 <body>
@@ -39,7 +38,7 @@
     <!-- Navigation -->
     <nav class="navbar">
       <div class="logo-area">
-        <img src="DSLOGO.jpg" alt="DS Logo" style="width:45px;height:45px;object-fit:contain;border-radius:8px;" onerror="this.style.display='none'">
+        <img src="DSLOGO.jpg" style="width:45px;height:45px;border-radius:8px;">
         <div class="logo-text">DAKS<span>.</span></div>
       </div>
       <div class="nav-links">
@@ -55,42 +54,42 @@
     </nav>
 
     <!-- Hero Banner -->
-    <header class="hero">
-      <img src="DSBANNER.jpg" alt="Banner" style="width:100%;height:auto;max-height:400px;object-fit:contain;border-radius:0 0 1rem 1rem;" onerror="this.style.display='none'">
+    <header class="hero reveal">
+      <img src="DSBANNER.jpg" style="width:100%;height:auto;max-height:400px;object-fit:contain;" onerror="this.style.display='none'">
     </header>
 
     <!-- Hero Content -->
-    <div style="text-align:center;padding:2rem;">
-      <h1 style="color:#f5f1e6;">FORGE YOUR <span style="color:#d4af37;">LEGACY</span></h1>
-      <p style="color:#bdb6a4;margin-top:0.5rem;">Six elite teams. One vision.</p>
+    <div class="hero-content-below reveal delay-1">
+      <h1 class="hero-heading">FORGE YOUR <span class="gold-text">LEGACY</span></h1>
+      <p class="hero-description">Six elite teams. One vision.</p>
     </div>
 
-    <!-- Announcement Banner -->
-    <section id="announcement" style="margin:1rem 0 2rem;">
+    <!-- Announcement -->
+    <section id="announcement" class="reveal delay-2">
+      <h2 class="section-title">TOURNAMENT ANNOUNCEMENT</h2>
       <div style="text-align:center;">
-        <img id="announcementImage" src="" alt="Tournament Announcement" style="display:none;width:100%;max-height:400px;object-fit:contain;border-radius:1rem;border:2px solid rgba(212,175,55,0.3);">
+        <img id="announcementImage" src="" style="display:none;width:100%;max-height:400px;object-fit:contain;border-radius:1rem;border:2px solid rgba(212,175,55,0.3);">
       </div>
     </section>
 
-    <!-- Teams Section - ORDERED -->
-    <section id="teams">
+    <!-- Teams -->
+    <section id="teams" class="reveal delay-1">
       <h2 class="section-title">TEAM BANNERS</h2>
       <div class="teams-grid" id="teamsGrid">
         <p style="color:#999;">Loading teams...</p>
       </div>
     </section>
 
-    <!-- Achievements/Certificates -->
-    <section id="achievements">
+    <!-- Achievements -->
+    <section id="achievements" class="reveal delay-2">
       <h2 class="section-title">ACHIEVEMENTS & CERTIFICATES</h2>
-      <p style="color:#999;margin-bottom:1rem;">👆 Click on a certificate to view and download</p>
       <div id="achievementsContainer" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;">
         <p style="color:#999;">Loading certificates...</p>
       </div>
     </section>
 
     <!-- Founder -->
-    <div class="founder-section">
+    <div class="founder-section reveal delay-3">
       <div class="founder-avatar"><i class="fas fa-star"></i></div>
       <div class="founder-text">
         <h2>MYLYKES <span class="founder-name">· FOUNDER</span></h2>
@@ -99,7 +98,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="footer">© 2025 DAKS SYSTEM · All rights reserved</footer>
+    <footer class="footer">© 2025 DAKS SYSTEM</footer>
   </div>
 
   <!-- Team Modal -->
@@ -112,14 +111,14 @@
 
   <!-- Certificate Modal -->
   <div id="certModal" class="modal" style="display:none;">
-    <div class="modal-content" style="max-width:600px;text-align:center;">
+    <div class="modal-content">
       <span class="close-modal" onclick="closeCertModal()">&times;</span>
       <h2 style="color:#d4af37;">Certificate</h2>
-      <img id="certModalImage" src="" style="width:100%;max-height:400px;object-fit:contain;border-radius:10px;background:#0b0b0b;">
-      <h3 id="certModalTitle" style="color:#f5f1e6;margin:1rem 0 0.5rem;"></h3>
-      <p id="certModalTeam" style="color:#d4af37;font-weight:700;font-size:1.2rem;"></p>
-      <button onclick="downloadCertificate()" style="background:#d4af37;color:black;border:none;padding:0.8rem 2rem;border-radius:50px;cursor:pointer;font-weight:700;margin-top:1rem;">
-        <i class="fas fa-download"></i> Download Certificate
+      <img id="certModalImage" src="" style="width:100%;max-height:400px;object-fit:contain;">
+      <h3 id="certModalTitle" style="color:#f5f1e6;"></h3>
+      <p id="certModalTeam" style="color:#d4af37;"></p>
+      <button onclick="downloadCertificate()" style="background:#d4af37;color:black;padding:0.8rem 2rem;border-radius:50px;border:none;cursor:pointer;font-weight:700;">
+        <i class="fas fa-download"></i> Download
       </button>
     </div>
   </div>
@@ -127,6 +126,21 @@
   <script>
     let allTeams = [];
     let currentCertData = null;
+
+    // SCROLL REVEAL
+    function initializeScrollReveal() {
+      window.checkReveal = function() {
+        document.querySelectorAll('.reveal:not(.visible)').forEach(el => {
+          const top = el.getBoundingClientRect().top;
+          const windowHeight = window.innerHeight;
+          if (top < windowHeight - 120) {
+            el.classList.add('visible');
+          }
+        });
+      };
+      window.addEventListener('scroll', window.checkReveal);
+      window.checkReveal();
+    }
 
     function checkSession() {
       const session = localStorage.getItem('daksSystemSession');
@@ -136,19 +150,16 @@
       }
     }
 
-    // Load Announcement Banner
     async function loadAnnouncement() {
       try {
         const doc = await db.collection('content').doc('announcement').get();
         if (doc.exists && doc.data().imageUrl) {
-          const img = document.getElementById('announcementImage');
-          img.src = doc.data().imageUrl;
-          img.style.display = 'block';
+          document.getElementById('announcementImage').src = doc.data().imageUrl;
+          document.getElementById('announcementImage').style.display = 'block';
         }
-      } catch (error) { console.error(error); }
+      } catch (error) {}
     }
 
-    // Load Teams - ORDERED BY `order` FIELD
     async function loadTeams() {
       const grid = document.getElementById('teamsGrid');
       try {
@@ -159,11 +170,12 @@
         }
         allTeams = [];
         grid.innerHTML = '';
-        snapshot.forEach(doc => {
+        snapshot.forEach((doc, index) => {
           const team = { id: doc.id, ...doc.data() };
           allTeams.push(team);
           const card = document.createElement('div');
-          card.className = 'team-card';
+          card.className = 'team-card reveal';
+          card.style.setProperty('--delay', `${(index % 3) * 0.15}s`);
           card.style.cursor = 'pointer';
           card.onclick = function() { openTeamModal(team.id); };
           card.innerHTML = `
@@ -178,28 +190,26 @@
           `;
           grid.appendChild(card);
         });
-      } catch (error) { grid.innerHTML = '<p style="color:red;">Error</p>'; }
+        setTimeout(() => window.checkReveal(), 100);
+      } catch (error) {}
     }
 
     function openTeamModal(teamId) {
       const team = allTeams.find(t => t.id === teamId);
       if (!team) return;
-      const modal = document.getElementById('teamModal');
-      const content = document.getElementById('modalContent');
       const members = team.members || [];
-      content.innerHTML = `
+      document.getElementById('modalContent').innerHTML = `
         <h2 style="color:#d4af37;">${team.name}</h2>
-        ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:100%;height:200px;object-fit:contain;background:#0b0b0b;border-radius:10px;margin:1rem 0;">` : ''}
+        ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:100%;height:200px;object-fit:contain;">` : ''}
         <p><strong>Captain:</strong> ${team.captain}</p>
-        <h3 style="color:#d4af37;margin-top:1rem;">👥 TEAM PLAYERS</h3>
-        ${members.length > 0 ? members.map((p, i) => `<div style="padding:0.5rem;background:#111;border-radius:0.3rem;margin-bottom:0.3rem;color:white;"><span style="color:#d4af37;">${i + 1}.</span> ${p}</div>`).join('') : '<p style="color:#999;">No players listed</p>'}
+        <h3 style="color:#d4af37;">👥 TEAM PLAYERS</h3>
+        ${members.length > 0 ? members.map((p, i) => `<div style="padding:0.5rem;background:#111;border-radius:0.3rem;margin-bottom:0.3rem;color:white;"><span style="color:#d4af37;">${i + 1}.</span> ${p}</div>`).join('') : '<p style="color:#999;">No players</p>'}
       `;
-      modal.style.display = 'block';
+      document.getElementById('teamModal').style.display = 'block';
     }
 
     function closeModal() { document.getElementById('teamModal').style.display = 'none'; }
 
-    // Load Certificates
     async function loadAchievements() {
       const container = document.getElementById('achievementsContainer');
       try {
@@ -209,23 +219,24 @@
           return;
         }
         container.innerHTML = '';
-        snapshot.forEach(doc => {
+        snapshot.forEach((doc, index) => {
           const cert = doc.data();
           const card = document.createElement('div');
-          card.style.cssText = 'background:#111;border:2px solid #d4af37;border-radius:1rem;overflow:hidden;text-align:center;cursor:pointer;transition:all 0.3s;';
-          card.onmouseover = function() { this.style.transform = 'translateY(-5px)'; };
-          card.onmouseout = function() { this.style.transform = 'translateY(0)'; };
+          card.className = 'reveal';
+          card.style.setProperty('--delay', `${(index % 3) * 0.15}s`);
+          card.style.cssText = 'background:#111;border:2px solid #d4af37;border-radius:1rem;overflow:hidden;text-align:center;cursor:pointer;';
           card.onclick = function() { openCertModal(cert); };
           card.innerHTML = `
-            ${cert.imageUrl ? `<img src="${cert.imageUrl}" style="width:100%;max-height:250px;object-fit:contain;background:#0b0b0b;display:block;margin-top:2px;">` : ''}
+            ${cert.imageUrl ? `<img src="${cert.imageUrl}" style="width:100%;max-height:250px;object-fit:contain;">` : ''}
             <div style="padding:1rem;">
-              <h3 style="color:#d4af37;margin:0;">${cert.title}</h3>
-              <p style="color:white;font-weight:700;margin:0.5rem 0 0;">🏆 ${cert.teamName}</p>
+              <h3 style="color:#d4af37;">${cert.title}</h3>
+              <p style="color:white;font-weight:700;">🏆 ${cert.teamName}</p>
             </div>
           `;
           container.appendChild(card);
         });
-      } catch (error) { console.error(error); }
+        setTimeout(() => window.checkReveal(), 100);
+      } catch (error) {}
     }
 
     function openCertModal(cert) {
@@ -250,14 +261,14 @@
       if (event.target.classList.contains('modal')) event.target.style.display = 'none';
     }
 
-    // Initialize
+    // INITIALIZE
     checkSession();
+    initializeScrollReveal();
     loadAnnouncement();
     loadTeams();
     loadAchievements();
 
-    // Real-time updates
-    db.collection('content').doc('announcement').onSnapshot(() => loadAnnouncement());
+    // Real-time
     db.collection('teams').onSnapshot(() => loadTeams());
     db.collection('certificates').onSnapshot(() => loadAchievements());
   </script>
