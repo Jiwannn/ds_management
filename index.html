@@ -31,6 +31,7 @@
     const db = firebase.firestore();
     window.auth = auth;
     window.db = db;
+    console.log('✅ Firebase ready');
   </script>
 </head>
 <body>
@@ -64,14 +65,14 @@
       <p style="color:#bdb6a4;margin-top:0.5rem;">Six elite teams. One vision.</p>
     </div>
 
-    <!-- Announcement Banner (Image only) -->
-    <section id="announcement" style="margin:2rem 0;">
-      <div id="announcementBanner" style="text-align:center;">
+    <!-- ANNOUNCEMENT BANNER -->
+    <section id="announcement" style="margin:1rem 0 2rem;">
+      <div style="text-align:center;">
         <img id="announcementImage" src="" alt="Tournament Announcement" style="display:none;width:100%;max-height:400px;object-fit:contain;border-radius:1rem;border:2px solid rgba(212,175,55,0.3);">
       </div>
     </section>
 
-    <!-- Teams -->
+    <!-- Teams Section -->
     <section id="teams">
       <h2 class="section-title">TEAM BANNERS</h2>
       <div class="teams-grid" id="teamsGrid">
@@ -98,7 +99,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="footer">© 2025 DAKS SYSTEM</footer>
+    <footer class="footer">© 2025 DAKS SYSTEM · All rights reserved</footer>
   </div>
 
   <!-- Team Modal -->
@@ -135,7 +136,7 @@
       }
     }
 
-    // Load Announcement Banner (Image Only)
+    // Load Announcement Banner
     async function loadAnnouncement() {
       try {
         const doc = await db.collection('content').doc('announcement').get();
@@ -191,14 +192,14 @@
         ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:100%;height:200px;object-fit:contain;background:#0b0b0b;border-radius:10px;margin:1rem 0;">` : ''}
         <p><strong>Captain:</strong> ${team.captain}</p>
         <h3 style="color:#d4af37;margin-top:1rem;">👥 TEAM PLAYERS</h3>
-        ${members.length > 0 ? members.map((p, i) => `<div style="padding:0.5rem;background:#111;border-radius:0.3rem;margin-bottom:0.3rem;color:white;"><span style="color:#d4af37;">${i + 1}.</span> ${p}</div>`).join('') : '<p style="color:#999;">No players</p>'}
+        ${members.length > 0 ? members.map((p, i) => `<div style="padding:0.5rem;background:#111;border-radius:0.3rem;margin-bottom:0.3rem;color:white;"><span style="color:#d4af37;">${i + 1}.</span> ${p}</div>`).join('') : '<p style="color:#999;">No players listed</p>'}
       `;
       modal.style.display = 'block';
     }
 
     function closeModal() { document.getElementById('teamModal').style.display = 'none'; }
 
-    // Load Certificates - with margin-top 2px
+    // Load Certificates
     async function loadAchievements() {
       const container = document.getElementById('achievementsContainer');
       try {
@@ -212,8 +213,8 @@
           const cert = doc.data();
           const card = document.createElement('div');
           card.style.cssText = 'background:#111;border:2px solid #d4af37;border-radius:1rem;overflow:hidden;text-align:center;cursor:pointer;transition:all 0.3s;';
-          card.onmouseover = function() { this.style.transform = 'translateY(-5px)'; };
-          card.onmouseout = function() { this.style.transform = 'translateY(0)'; };
+          card.onmouseover = function() { this.style.transform = 'translateY(-5px)'; this.style.boxShadow = '0 10px 25px rgba(212,175,55,0.3)'; };
+          card.onmouseout = function() { this.style.transform = 'translateY(0)'; this.style.boxShadow = 'none'; };
           card.onclick = function() { openCertModal(cert); };
           card.innerHTML = `
             ${cert.imageUrl ? `<img src="${cert.imageUrl}" style="width:100%;max-height:250px;object-fit:contain;background:#0b0b0b;display:block;margin-top:2px;">` : ''}
@@ -255,7 +256,7 @@
     loadTeams();
     loadAchievements();
 
-    // Real-time
+    // Real-time updates
     db.collection('content').doc('announcement').onSnapshot(() => loadAnnouncement());
     db.collection('teams').onSnapshot(() => loadTeams());
     db.collection('certificates').onSnapshot(() => loadAchievements());

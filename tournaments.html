@@ -31,7 +31,6 @@
     const db = firebase.firestore();
     window.auth = auth;
     window.db = db;
-    console.log('✅ Firebase ready');
   </script>
 </head>
 <body>
@@ -46,7 +45,6 @@
         <a href="index.html" class="nav-link">Home</a>
         <a href="index.html#teams" class="nav-link">Teams</a>
         <a href="tournaments.html" class="nav-link" style="color:#d4af37;">Tournaments</a>
-        <a href="index.html#register" class="nav-link">Register</a>
       </div>
       <div class="nav-actions">
         <div class="founder-badge">FOUNDER · MYLYKES</div>
@@ -57,53 +55,44 @@
 
     <!-- Page Header -->
     <div style="text-align:center;padding:3rem 1rem;">
-      <i class="fas fa-trophy" style="font-size:4rem;color:#d4af37;"></i>
-      <h1 style="font-size:2.5rem;color:#f5f1e6;margin-top:1rem;">TOURNAMENT <span style="color:#d4af37;">BRACKETS</span></h1>
-      <p style="color:#999;margin-top:0.5rem;">Live brackets, upcoming events, and past champions</p>
+      <i class="fas fa-trophy" style="font-size:4rem;color:#d4af37;filter:drop-shadow(0 0 20px rgba(212,175,55,0.5));"></i>
+      <h1 style="font-size:2.5rem;color:#f5f1e6;margin-top:1rem;font-weight:800;">TOURNAMENT <span style="color:#d4af37;">CENTER</span></h1>
+      <p style="color:#999;margin-top:0.5rem;">Live brackets, upcoming events, and championship history</p>
+      <div style="width:100px;height:3px;background:linear-gradient(90deg,transparent,#d4af37,transparent);margin:1.5rem auto;"></div>
     </div>
 
     <!-- Tabs -->
-    <div style="display:flex;justify-content:center;gap:0.75rem;margin-bottom:2rem;flex-wrap:wrap;">
-      <button class="tab-btn active" onclick="switchTab('current', event)">Current</button>
-      <button class="tab-btn" onclick="switchTab('upcoming', event)">Upcoming</button>
-      <button class="tab-btn" onclick="switchTab('past', event)">Past Winners</button>
+    <div style="display:flex;justify-content:center;gap:1rem;margin-bottom:3rem;flex-wrap:wrap;">
+      <button class="tab-btn active" onclick="switchTab('current', event)" style="padding:0.8rem 2rem;">LIVE BRACKET</button>
+      <button class="tab-btn" onclick="switchTab('upcoming', event)" style="padding:0.8rem 2rem;">UPCOMING</button>
+      <button class="tab-btn" onclick="switchTab('past', event)" style="padding:0.8rem 2rem;">PAST WINNERS</button>
     </div>
 
     <!-- Current Tournament -->
     <div id="currentTab">
-      <h2 class="section-title">LIVE BRACKET</h2>
       <div id="currentBracket">
-        <p style="color:#999;text-align:center;padding:2rem;">Loading current bracket...</p>
+        <p style="color:#999;text-align:center;padding:3rem;">Loading live bracket...</p>
       </div>
     </div>
 
     <!-- Upcoming -->
     <div id="upcomingTab" style="display:none;">
-      <h2 class="section-title">UPCOMING TOURNAMENTS</h2>
       <div id="upcomingList">
-        <p style="color:#999;text-align:center;padding:2rem;">Loading...</p>
+        <p style="color:#999;text-align:center;padding:3rem;">Loading upcoming tournaments...</p>
       </div>
     </div>
 
     <!-- Past Winners -->
     <div id="pastTab" style="display:none;">
-      <h2 class="section-title">PAST WINNERS & CERTIFICATES</h2>
       <div id="pastWinners">
-        <p style="color:#999;text-align:center;padding:2rem;">Loading...</p>
+        <p style="color:#999;text-align:center;padding:3rem;">Loading past winners...</p>
       </div>
     </div>
 
-    <!-- Registration CTA -->
-    <div style="text-align:center;padding:3rem 1rem;margin-top:2rem;">
-      <h2 style="color:#f5f1e6;">Ready to Compete?</h2>
-      <a href="https://docs.google.com/forms/d/1hhS8IsiMIJGG_-Xv9SyOH_R9wcWcnhMHddG3Gvohi8A/edit" target="_blank" class="google-form-btn" style="margin-top:1rem;display:inline-flex;">
-        <i class="fab fa-google"></i> Register for Tournament
-      </a>
-    </div>
-
     <!-- Footer -->
-    <footer class="footer" style="margin-top:3rem;">
-      <div>© 2025 DAKS SYSTEM</div>
+    <footer class="footer" style="margin-top:4rem;">
+      <div>© 2025 DAKS SYSTEM · All rights reserved</div>
+      <div>Premium Management & Esports Organization</div>
     </footer>
   </div>
 
@@ -116,14 +105,19 @@
       }
     }
 
-    // LOAD CURRENT TOURNAMENT BRACKET
+    // Load Current Tournament
     async function loadCurrentTournament() {
       const bracket = document.getElementById('currentBracket');
       try {
         const snapshot = await db.collection('tournaments').where('status', '==', 'active').get();
         
         if (snapshot.empty) {
-          bracket.innerHTML = '<p style="color:#999;text-align:center;padding:2rem;">No active tournament bracket</p>';
+          bracket.innerHTML = `
+            <div style="text-align:center;padding:3rem;background:#1a1a1a;border-radius:1rem;border:1px solid rgba(212,175,55,0.2);">
+              <i class="fas fa-gamepad" style="font-size:3rem;color:#666;"></i>
+              <p style="color:#999;margin-top:1rem;">No active tournament</p>
+            </div>
+          `;
           return;
         }
         
@@ -134,19 +128,13 @@
             let url = t.challongeUrl.trim().replace(/\/$/, '');
             if (!url.includes('/module')) url += '/module';
             
-            bracket.innerHTML += `
-              <div style="background:#111;border:2px solid #d4af37;border-radius:1rem;overflow:hidden;margin-bottom:1rem;">
-                <div style="padding:1rem;text-align:center;border-bottom:2px solid #d4af37;background:#1a1a1a;">
-                  <h3 style="color:#d4af37;margin:0;">🏆 ${t.name}</h3>
+            bracket.innerHTML = `
+              <div style="background:#111;border:2px solid #d4af37;border-radius:1rem;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+                <div style="padding:1.2rem;text-align:center;border-bottom:2px solid #d4af37;background:linear-gradient(135deg,#1a1a1a,#0b0b0b);">
+                  <h3 style="color:#d4af37;margin:0;font-size:1.3rem;">🏆 ${t.name}</h3>
+                  <p style="color:#999;margin:0.3rem 0 0;font-size:0.85rem;">${t.startDate} - ${t.endDate}</p>
                 </div>
                 <iframe src="${url}" width="100%" height="600" frameborder="0" scrolling="auto" allowtransparency="true" style="display:block;background:white;border:none;"></iframe>
-              </div>
-            `;
-          } else {
-            bracket.innerHTML += `
-              <div style="text-align:center;padding:2rem;background:#1a1a1a;border-radius:1rem;">
-                <h3 style="color:#d4af37;">${t.name}</h3>
-                <p style="color:#999;">Bracket URL not set by admin</p>
               </div>
             `;
           }
@@ -156,7 +144,7 @@
       }
     }
 
-    // LOAD UPCOMING TOURNAMENTS
+    // Load Upcoming
     async function loadUpcomingTournaments() {
       const list = document.getElementById('upcomingList');
       try {
@@ -171,72 +159,54 @@
         snapshot.forEach(doc => {
           const t = doc.data();
           list.innerHTML += `
-            <div style="background:#1a1a1a;border:1px solid #d4af37;border-radius:1rem;padding:1.5rem;margin-bottom:1rem;text-align:center;">
-              <i class="fas fa-calendar-alt" style="font-size:2rem;color:#d4af37;"></i>
-              <h3 style="color:#f5f1e6;margin-top:0.5rem;">${t.name}</h3>
-              <p style="color:#999;">${t.startDate} - ${t.endDate}</p>
-              <a href="https://docs.google.com/forms/d/1hhS8IsiMIJGG_-Xv9SyOH_R9wcWcnhMHddG3Gvohi8A/edit" target="_blank" style="color:#d4af37;text-decoration:none;font-weight:700;">Register Now →</a>
+            <div style="background:#1a1a1a;border:1px solid rgba(212,175,55,0.3);border-radius:1rem;padding:2rem;margin-bottom:1rem;text-align:center;transition:all 0.3s;">
+              <i class="fas fa-calendar-alt" style="font-size:2.5rem;color:#d4af37;"></i>
+              <h3 style="color:#f5f1e6;margin-top:1rem;font-size:1.2rem;">${t.name}</h3>
+              <p style="color:#999;margin:0.5rem 0;">${t.startDate} - ${t.endDate}</p>
+              <div style="width:50px;height:2px;background:#d4af37;margin:1rem auto;"></div>
+              <p style="color:#666;font-size:0.85rem;">Registration via Google Form</p>
             </div>
           `;
         });
       } catch (error) {
-        list.innerHTML = '<p style="color:red;">Error: ' + error.message + '</p>';
+        list.innerHTML = '<p style="color:red;">Error</p>';
       }
     }
 
-    // LOAD PAST WINNERS WITH CERTIFICATES
+    // Load Past Winners
     async function loadPastWinners() {
       const winners = document.getElementById('pastWinners');
       try {
         const certsSnapshot = await db.collection('certificates').orderBy('createdAt', 'desc').get();
-        const tournamentsSnapshot = await db.collection('tournaments').where('status', '==', 'completed').get();
         
-        if (certsSnapshot.empty && tournamentsSnapshot.empty) {
-          winners.innerHTML = '<p style="color:#999;text-align:center;padding:2rem;">No past winners yet</p>';
+        if (certsSnapshot.empty) {
+          winners.innerHTML = '<p style="color:#999;text-align:center;padding:2rem;">No winners yet</p>';
           return;
         }
         
         winners.innerHTML = '';
-        
-        // Show certificates with images
         certsSnapshot.forEach(doc => {
           const cert = doc.data();
           winners.innerHTML += `
-            <div style="background:#111;border:2px solid #d4af37;border-radius:1rem;overflow:hidden;margin-bottom:1rem;">
-              <div style="padding:1rem;text-align:center;border-bottom:2px solid #d4af37;background:#1a1a1a;">
-                <h3 style="color:#d4af37;">🏆 ${cert.title}</h3>
-                <p style="color:white;font-weight:700;font-size:1.2rem;">${cert.teamName}</p>
+            <div style="background:#111;border:2px solid #d4af37;border-radius:1rem;overflow:hidden;margin-bottom:1.5rem;">
+              <div style="padding:1rem;text-align:center;background:linear-gradient(135deg,#1a1a1a,#0b0b0b);border-bottom:2px solid #d4af37;">
+                <h3 style="color:#d4af37;margin:0;">${cert.title}</h3>
+                <p style="color:white;font-weight:700;font-size:1.1rem;margin:0.3rem 0 0;">🏆 ${cert.teamName}</p>
               </div>
-              ${cert.imageUrl ? `
-                <img src="${cert.imageUrl}" style="width:100%;max-height:400px;object-fit:contain;background:#0b0b0b;display:block;">
-              ` : ''}
-            </div>
-          `;
-        });
-        
-        // Show completed tournaments
-        tournamentsSnapshot.forEach(doc => {
-          const t = doc.data();
-          winners.innerHTML += `
-            <div style="background:#1a1a1a;border:1px solid #d4af37;border-radius:0.5rem;padding:1rem;margin-bottom:0.5rem;">
-              <h3 style="color:#d4af37;">${t.name}</h3>
-              <p style="color:#999;">${t.startDate} - ${t.endDate}</p>
+              ${cert.imageUrl ? `<img src="${cert.imageUrl}" style="width:100%;max-height:400px;object-fit:contain;background:#0b0b0b;display:block;">` : ''}
             </div>
           `;
         });
       } catch (error) {
-        winners.innerHTML = '<p style="color:red;">Error: ' + error.message + '</p>';
+        winners.innerHTML = '<p style="color:red;">Error</p>';
       }
     }
 
-    // TAB SWITCHING
     function switchTab(tab, event) {
       document.getElementById('currentTab').style.display = 'none';
       document.getElementById('upcomingTab').style.display = 'none';
       document.getElementById('pastTab').style.display = 'none';
-      
       document.getElementById(tab + 'Tab').style.display = 'block';
-      
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       if (event && event.target) event.target.classList.add('active');
     }
