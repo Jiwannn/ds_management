@@ -39,7 +39,7 @@
     <!-- Navigation -->
     <nav class="navbar">
       <div class="logo-area">
-        <img src="DSLOGO.jpg" alt="DS Logo" style="width:45px;height:45px;object-fit:contain;border-radius:8px;" onerror="this.style.display='none'">
+        <img src="DSLOGO.jpg" alt="DS Logo" style="width:40px;height:40px;object-fit:contain;border-radius:8px;" onerror="this.style.display='none'">
         <div class="logo-text">DAKS<span>.</span></div>
       </div>
       <div class="nav-links">
@@ -55,15 +55,15 @@
       </div>
     </nav>
 
-    <!-- Hero Banner -->
+    <!-- Hero Banner - FULLY VISIBLE ON MOBILE -->
     <header class="hero">
-      <img src="DSBANNER.jpg" alt="Banner" style="width:100%;height:400px;object-fit:cover;border-radius:0 0 1.5rem 1.5rem;" onerror="this.style.display='none'">
+      <img src="DSBANNER.jpg" alt="DAKS SYSTEM Banner" style="width:100%;height:auto;max-height:400px;object-fit:contain;display:block;border-radius:0 0 1rem 1rem;" onerror="this.style.display='none'">
     </header>
 
     <!-- Hero Content -->
-    <div style="text-align:center;padding:2rem;">
-      <h1 style="color:#f5f1e6;font-size:2.5rem;">FORGE YOUR <span style="color:#d4af37;">LEGACY</span></h1>
-      <p style="color:#bdb6a4;margin-top:0.5rem;">Six elite teams. One vision.</p>
+    <div style="text-align:center;padding:1.5rem;">
+      <h1 style="color:#f5f1e6;font-size:clamp(1.5rem, 4vw, 2.5rem);">FORGE YOUR <span style="color:#d4af37;">LEGACY</span></h1>
+      <p style="color:#bdb6a4;margin-top:0.5rem;font-size:clamp(0.9rem, 2vw, 1.1rem);">Six elite teams. One vision.</p>
       <button onclick="scrollToSection('register')" class="cta-button" style="margin-top:1rem;">
         <i class="fas fa-trophy"></i> Register for Tournament
       </button>
@@ -107,9 +107,9 @@
     <!-- Registration - CENTERED -->
     <section id="register" style="text-align:center;">
       <h2 class="section-title" style="text-align:left;">TOURNAMENT REGISTRATION</h2>
-      <div style="display:flex;justify-content:center;align-items:center;min-height:200px;">
+      <div style="display:flex;justify-content:center;align-items:center;min-height:150px;">
         <a href="https://docs.google.com/forms/d/1hhS8IsiMIJGG_-Xv9SyOH_R9wcWcnhMHddG3Gvohi8A/edit" target="_blank" class="google-form-btn" style="display:inline-flex;margin:0 auto;">
-          <i class="fab fa-google"></i> Register for Tournament
+          <i class="fab fa-google"></i> Register Now
         </a>
       </div>
     </section>
@@ -265,7 +265,7 @@
                 <div style="padding:0.75rem;text-align:center;border-bottom:2px solid #d4af37;background:#1a1a1a;">
                   <h3 style="color:#d4af37;">🏆 ${t.name}</h3>
                 </div>
-                ${url ? `<iframe src="${url}" width="100%" height="500" frameborder="0" style="display:block;background:white;border:none;"></iframe>` : '<p style="color:#ff6b7a;text-align:center;padding:1rem;">No bracket URL</p>'}
+                ${url ? `<iframe src="${url}" width="100%" height="400" frameborder="0" style="display:block;background:white;border:none;"></iframe>` : '<p style="color:#ff6b7a;text-align:center;padding:1rem;">No bracket URL</p>'}
               </div>
             `;
           }).join('');
@@ -283,7 +283,7 @@
               <div style="padding:0.75rem;text-align:center;border-bottom:2px solid #d4af37;background:#1a1a1a;">
                 <h3 style="color:#d4af37;">🏆 ${active[0].name}</h3>
               </div>
-              <iframe src="${url}" width="100%" height="600" frameborder="0" style="display:block;background:white;border:none;"></iframe>
+              <iframe src="${url}" width="100%" height="500" frameborder="0" style="display:block;background:white;border:none;"></iframe>
             </div>
           `;
         } else {
