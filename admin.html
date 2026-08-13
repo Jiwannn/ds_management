@@ -31,12 +31,10 @@
     const db = firebase.firestore();
     window.auth = auth;
     window.db = db;
-    console.log('✅ Firebase ready');
   </script>
 </head>
 <body>
   <div class="admin-container">
-    <!-- Sidebar -->
     <aside class="admin-sidebar">
       <div class="admin-logo">
         <i class="fas fa-crown"></i>
@@ -44,95 +42,64 @@
         <small>ADMIN</small>
       </div>
       <nav class="admin-nav">
-        <a href="#dashboard" class="admin-nav-link active" onclick="showSection('dashboard', event)">
-          <i class="fas fa-chart-line"></i> Dashboard
-        </a>
-        <a href="#teams" class="admin-nav-link" onclick="showSection('teams', event)">
-          <i class="fas fa-users"></i> Teams
-        </a>
-        <a href="#certificates" class="admin-nav-link" onclick="showSection('certificates', event)">
-          <i class="fas fa-certificate"></i> Certificates
-        </a>
-        <a href="#tournaments" class="admin-nav-link" onclick="showSection('tournaments', event)">
-          <i class="fas fa-trophy"></i> Tournaments
-        </a>
-        <a href="#announcement" class="admin-nav-link" onclick="showSection('announcement', event)">
-          <i class="fas fa-bullhorn"></i> Announcement
-        </a>
+        <a href="#dashboard" class="admin-nav-link active" onclick="showSection('dashboard', event)">📊 Dashboard</a>
+        <a href="#teams" class="admin-nav-link" onclick="showSection('teams', event)">👥 Teams</a>
+        <a href="#certificates" class="admin-nav-link" onclick="showSection('certificates', event)">🏆 Certificates</a>
+        <a href="#tournaments" class="admin-nav-link" onclick="showSection('tournaments', event)">🎮 Tournaments</a>
+        <a href="#announcement" class="admin-nav-link" onclick="showSection('announcement', event)">📢 Announcement</a>
       </nav>
       <div class="admin-footer">
-        <a href="index.html" class="back-to-site">
-          <i class="fas fa-arrow-left"></i> Back to Website
-        </a>
-        <button onclick="logout()" class="logout-btn">
-          <i class="fas fa-sign-out-alt"></i> Logout
-        </button>
+        <a href="index.html" class="back-to-site">← Website</a>
+        <button onclick="logout()" class="logout-btn">🚪 Logout</button>
       </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="admin-main">
       <header class="admin-topbar">
         <h1 id="pageTitle">Dashboard</h1>
-        <div class="admin-profile">
-          <span id="adminName">Admin</span>
-          <i class="fas fa-user-shield"></i>
-        </div>
+        <div class="admin-profile"><span id="adminName">Admin</span><i class="fas fa-user-shield"></i></div>
       </header>
 
-      <!-- Dashboard -->
       <section id="dashboard" class="admin-section active">
         <div class="stats-grid">
-          <div class="stat-card">
-            <i class="fas fa-users stat-icon"></i>
-            <div class="stat-info"><h3 id="totalTeams">0</h3><p>Teams</p></div>
-          </div>
-          <div class="stat-card">
-            <i class="fas fa-certificate stat-icon"></i>
-            <div class="stat-info"><h3 id="totalCertificates">0</h3><p>Certificates</p></div>
-          </div>
+          <div class="stat-card"><h3 id="totalTeams">0</h3><p>Teams</p></div>
+          <div class="stat-card"><h3 id="totalCertificates">0</h3><p>Certificates</p></div>
         </div>
       </section>
 
-      <!-- Teams -->
+      <!-- TEAMS WITH DRAG AND DROP -->
       <section id="teams" class="admin-section">
         <div class="section-header">
           <h2>Teams Management</h2>
-          <button class="btn-primary" onclick="openTeamModal()"><i class="fas fa-plus"></i> Add Team</button>
+          <button class="btn-primary" onclick="openTeamModal()">+ Add Team</button>
         </div>
-        <p style="color:#999;margin-bottom:1rem;">Use ⬆️⬇️ to reorder team banners</p>
-        <table class="admin-table">
-          <thead><tr><th>Order</th><th>Banner</th><th>Team Name</th><th>Captain</th><th>Actions</th></tr></thead>
-          <tbody id="teamsTableBody"></tbody>
-        </table>
+        <p style="color:#999;margin-bottom:1rem;">🖱️ Drag and drop team banners to reorder</p>
+        <div id="teamsDragContainer" style="display:flex;flex-direction:column;gap:0.5rem;">
+          <p style="color:#999;">Loading teams...</p>
+        </div>
       </section>
 
-      <!-- Certificates -->
       <section id="certificates" class="admin-section">
         <div class="section-header">
-          <h2>Certificate Management</h2>
-          <button class="btn-primary" onclick="openCertificateModal()"><i class="fas fa-plus"></i> Upload Certificate</button>
+          <h2>Certificates</h2>
+          <button class="btn-primary" onclick="openCertificateModal()">+ Upload Certificate</button>
         </div>
-        <div class="certificates-grid" id="certificatesGrid"></div>
+        <div id="certificatesGrid"></div>
       </section>
 
-      <!-- Tournaments -->
       <section id="tournaments" class="admin-section">
         <div class="section-header">
-          <h2>Tournament Management</h2>
-          <button class="btn-primary" onclick="openTournamentModal()"><i class="fas fa-plus"></i> Create Tournament</button>
+          <h2>Tournaments</h2>
+          <button class="btn-primary" onclick="openTournamentModal()">+ Create Tournament</button>
         </div>
-        <div class="tournaments-list" id="tournamentsList"></div>
+        <div id="tournamentsList"></div>
       </section>
 
-      <!-- Announcement -->
       <section id="announcement" class="admin-section">
-        <div class="section-header">
-          <h2>Tournament Announcement Banner</h2>
-        </div>
+        <div class="section-header"><h2>Announcement Banner</h2></div>
         <form id="announcementForm">
           <div class="form-group">
-            <label>Announcement Banner Image</label>
+            <label>Banner Image</label>
             <input type="file" id="announcementImageInput" accept="image/*" onchange="previewAnnouncementImage(event)">
             <img id="announcementImagePreview" style="display:none;width:100%;max-height:200px;object-fit:contain;margin-top:0.5rem;border-radius:10px;border:2px solid #d4af37;">
           </div>
@@ -152,9 +119,7 @@
           <label>Team Banner Logo</label>
           <input type="file" id="teamLogoInput" accept="image/*" onchange="previewTeamLogo(event)" style="display:none;">
           <img id="teamLogoPreview" style="display:none;width:100%;max-height:150px;object-fit:contain;margin-bottom:0.5rem;border-radius:10px;border:2px solid #d4af37;">
-          <button type="button" class="btn-primary" onclick="document.getElementById('teamLogoInput').click()">
-            <i class="fas fa-upload"></i> Upload Team Banner
-          </button>
+          <button type="button" class="btn-primary" onclick="document.getElementById('teamLogoInput').click()">📸 Upload Banner</button>
         </div>
         <div class="form-group"><label>Team Name</label><input type="text" id="teamNameInput" required></div>
         <div class="form-group"><label>Captain</label><input type="text" id="captainNameInput" required></div>
@@ -175,9 +140,9 @@
           <input type="file" id="certImageInput" accept="image/*" onchange="previewCertImage(event)">
           <img id="certImagePreview" style="display:none;width:100%;max-height:200px;object-fit:contain;margin-top:0.5rem;border-radius:10px;border:2px solid #d4af37;">
         </div>
-        <div class="form-group"><label>Winning Team Name</label><input type="text" id="certTeamName" required></div>
-        <div class="form-group"><label>Achievement Title</label><input type="text" id="certTitle" required></div>
-        <button type="submit" class="btn-primary">Upload Certificate</button>
+        <div class="form-group"><label>Winning Team</label><input type="text" id="certTeamName" required></div>
+        <div class="form-group"><label>Title</label><input type="text" id="certTitle" required></div>
+        <button type="submit" class="btn-primary">Upload</button>
       </form>
     </div>
   </div>
@@ -188,8 +153,8 @@
       <span class="close-modal" onclick="closeModal('tournamentModal')">&times;</span>
       <h2>Create Tournament</h2>
       <form id="tournamentForm">
-        <div class="form-group"><label>Tournament Name</label><input type="text" id="tournamentNameInput" required></div>
-        <div class="form-group"><label>Challonge URL</label><input type="url" id="challongeUrlInput" placeholder="https://challonge.com/..."></div>
+        <div class="form-group"><label>Name</label><input type="text" id="tournamentNameInput" required></div>
+        <div class="form-group"><label>Challonge URL</label><input type="url" id="challongeUrlInput"></div>
         <div class="form-group"><label>Start Date</label><input type="date" id="tournamentStartDate" required></div>
         <div class="form-group"><label>End Date</label><input type="date" id="tournamentEndDate" required></div>
         <div class="form-group">
@@ -200,7 +165,7 @@
             <option value="completed">Completed</option>
           </select>
         </div>
-        <button type="submit" class="btn-primary">Create Tournament</button>
+        <button type="submit" class="btn-primary">Create</button>
       </form>
     </div>
   </div>
@@ -209,15 +174,12 @@
     let teamLogoData = null;
     let certImageData = null;
     let announcementImageData = null;
+    let draggedTeamId = null;
 
     const session = localStorage.getItem('daksSystemSession');
-    if (!session) {
-      window.location.replace('login.html');
-    } else {
-      document.getElementById('adminName').textContent = JSON.parse(session).name || 'Admin';
-    }
+    if (!session) { window.location.replace('login.html'); }
+    else { document.getElementById('adminName').textContent = JSON.parse(session).name || 'Admin'; }
 
-    // PREVIEW TEAM LOGO
     function previewTeamLogo(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -230,7 +192,6 @@
       reader.readAsDataURL(file);
     }
 
-    // PREVIEW CERTIFICATE
     function previewCertImage(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -243,7 +204,6 @@
       reader.readAsDataURL(file);
     }
 
-    // PREVIEW ANNOUNCEMENT IMAGE
     function previewAnnouncementImage(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -256,92 +216,116 @@
       reader.readAsDataURL(file);
     }
 
-    // LOAD TEAMS WITH ORDER
+    // LOAD TEAMS - DRAGGABLE
     function loadTeams() {
-      db.collection('teams').orderBy('order', 'asc').get().then(snapshot => {
+      db.collection('teams').get().then(snapshot => {
         document.getElementById('totalTeams').textContent = snapshot.size;
-        const tbody = document.getElementById('teamsTableBody');
-        tbody.innerHTML = '';
+        const container = document.getElementById('teamsDragContainer');
+        container.innerHTML = '';
         
         if (snapshot.empty) {
-          tbody.innerHTML = '<tr><td colspan="5" style="color:#999;">No teams yet</td></tr>';
+          container.innerHTML = '<p style="color:#999;">No teams yet</p>';
           return;
         }
         
-        let index = 0;
-        snapshot.forEach(doc => {
-          const team = doc.data();
-          tbody.innerHTML += `
-            <tr>
-              <td style="color:#d4af37;font-weight:700;">${index + 1}</td>
-              <td>${team.logoUrl ? `<img src="${team.logoUrl}" style="width:50px;height:50px;object-fit:cover;border-radius:10px;">` : '🏆'}</td>
-              <td style="color:white;font-weight:600;">${team.name}</td>
-              <td style="color:#999;">${team.captain}</td>
-              <td>
-                <button onclick="moveTeamUp('${doc.id}')" ${index === 0 ? 'disabled' : ''} style="background:rgba(212,175,55,0.1);border:1px solid #d4af37;color:#d4af37;padding:0.3rem 0.6rem;border-radius:0.3rem;cursor:pointer;">⬆️</button>
-                <button onclick="moveTeamDown('${doc.id}')" ${index === snapshot.size - 1 ? 'disabled' : ''} style="background:rgba(212,175,55,0.1);border:1px solid #d4af37;color:#d4af37;padding:0.3rem 0.6rem;border-radius:0.3rem;cursor:pointer;">⬇️</button>
-                <button onclick="deleteTeam('${doc.id}')" style="background:rgba(220,53,69,0.1);border:1px solid rgba(220,53,69,0.3);color:#ff6b7a;padding:0.3rem 0.6rem;border-radius:0.3rem;cursor:pointer;">🗑️</button>
-              </td>
-            </tr>
+        const teams = [];
+        snapshot.forEach(doc => teams.push({ id: doc.id, ...doc.data() }));
+        
+        // Sort: with order first, then by order number
+        teams.sort((a, b) => {
+          if (a.order === undefined && b.order === undefined) return 0;
+          if (a.order === undefined) return 1;
+          if (b.order === undefined) return -1;
+          return a.order - b.order;
+        });
+        
+        teams.forEach((team, index) => {
+          const card = document.createElement('div');
+          card.setAttribute('draggable', 'true');
+          card.dataset.teamId = team.id;
+          card.style.cssText = 'display:flex;align-items:center;gap:1rem;background:#1a1a1a;border:1px solid #d4af37;border-radius:0.5rem;padding:0.75rem;cursor:grab;transition:all 0.3s;';
+          
+          // Drag events
+          card.addEventListener('dragstart', function(e) {
+            draggedTeamId = team.id;
+            this.style.opacity = '0.5';
+          });
+          card.addEventListener('dragend', function() {
+            this.style.opacity = '1';
+          });
+          card.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.style.borderColor = '#f0d68a';
+            this.style.background = '#2a2a2a';
+          });
+          card.addEventListener('dragleave', function() {
+            this.style.borderColor = '#d4af37';
+            this.style.background = '#1a1a1a';
+          });
+          card.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.style.borderColor = '#d4af37';
+            this.style.background = '#1a1a1a';
+            const targetTeamId = this.dataset.teamId;
+            if (draggedTeamId && draggedTeamId !== targetTeamId) {
+              reorderTeams(draggedTeamId, targetTeamId);
+            }
+          });
+          
+          card.innerHTML = `
+            <span style="color:#d4af37;font-weight:700;width:30px;">${index + 1}</span>
+            ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:60px;height:60px;object-fit:cover;border-radius:10px;">` : '<span style="font-size:2rem;">🏆</span>'}
+            <div style="flex:1;">
+              <strong style="color:white;">${team.name}</strong>
+              <p style="color:#999;margin:0;">Captain: ${team.captain}</p>
+            </div>
+            <span style="color:#999;">⠿ Drag</span>
+            <button onclick="deleteTeam('${team.id}')" style="background:rgba(220,53,69,0.1);border:1px solid rgba(220,53,69,0.3);color:#ff6b7a;padding:0.3rem 0.6rem;border-radius:0.3rem;cursor:pointer;">🗑️</button>
           `;
-          index++;
+          
+          container.appendChild(card);
         });
       });
     }
 
-    // MOVE TEAM UP
-    async function moveTeamUp(teamId) {
+    // REORDER TEAMS
+    async function reorderTeams(draggedId, targetId) {
       const teams = [];
-      const snapshot = await db.collection('teams').orderBy('order', 'asc').get();
+      const snapshot = await db.collection('teams').get();
       snapshot.forEach(doc => teams.push({ id: doc.id, ...doc.data() }));
       
-      const currentIndex = teams.findIndex(t => t.id === teamId);
-      if (currentIndex <= 0) return;
+      teams.sort((a, b) => (a.order || 999) - (b.order || 999));
       
-      const currentTeam = teams[currentIndex];
-      const previousTeam = teams[currentIndex - 1];
+      const draggedIndex = teams.findIndex(t => t.id === draggedId);
+      const targetIndex = teams.findIndex(t => t.id === targetId);
       
-      await db.collection('teams').doc(currentTeam.id).update({ order: currentIndex - 1 });
-      await db.collection('teams').doc(previousTeam.id).update({ order: currentIndex });
+      if (draggedIndex === -1 || targetIndex === -1) return;
+      
+      // Reorder array
+      const [draggedTeam] = teams.splice(draggedIndex, 1);
+      teams.splice(targetIndex, 0, draggedTeam);
+      
+      // Update all orders
+      for (let i = 0; i < teams.length; i++) {
+        await db.collection('teams').doc(teams[i].id).update({ order: i });
+      }
       
       loadTeams();
     }
 
-    // MOVE TEAM DOWN
-    async function moveTeamDown(teamId) {
-      const teams = [];
-      const snapshot = await db.collection('teams').orderBy('order', 'asc').get();
-      snapshot.forEach(doc => teams.push({ id: doc.id, ...doc.data() }));
-      
-      const currentIndex = teams.findIndex(t => t.id === teamId);
-      if (currentIndex >= teams.length - 1 || currentIndex < 0) return;
-      
-      const currentTeam = teams[currentIndex];
-      const nextTeam = teams[currentIndex + 1];
-      
-      await db.collection('teams').doc(currentTeam.id).update({ order: currentIndex + 1 });
-      await db.collection('teams').doc(nextTeam.id).update({ order: currentIndex });
-      
-      loadTeams();
-    }
-
-    // LOAD CERTIFICATES
     function loadCertificates() {
       db.collection('certificates').get().then(snapshot => {
         document.getElementById('totalCertificates').textContent = snapshot.size;
         const grid = document.getElementById('certificatesGrid');
         grid.innerHTML = '';
-        if (snapshot.empty) {
-          grid.innerHTML = '<p style="color:#999;">No certificates yet</p>';
-          return;
-        }
+        if (snapshot.empty) { grid.innerHTML = '<p style="color:#999;">No certificates</p>'; return; }
         snapshot.forEach(doc => {
           const cert = doc.data();
           grid.innerHTML += `
             <div class="certificate-card">
-              ${cert.imageUrl ? `<img src="${cert.imageUrl}" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;margin-bottom:1rem;">` : ''}
-              <h3 class="certificate-title">${cert.title}</h3>
-              <p class="certificate-team">🏆 ${cert.teamName}</p>
+              ${cert.imageUrl ? `<img src="${cert.imageUrl}" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;">` : ''}
+              <h3>${cert.title}</h3>
+              <p>🏆 ${cert.teamName}</p>
               <button class="btn-danger" onclick="deleteCertificate('${doc.id}')">Delete</button>
             </div>
           `;
@@ -349,24 +333,18 @@
       });
     }
 
-    // LOAD TOURNAMENTS
     function loadTournaments() {
       db.collection('tournaments').get().then(snapshot => {
         const list = document.getElementById('tournamentsList');
         list.innerHTML = '';
-        if (snapshot.empty) {
-          list.innerHTML = '<p style="color:#999;">No tournaments yet</p>';
-          return;
-        }
+        if (snapshot.empty) { list.innerHTML = '<p style="color:#999;">No tournaments</p>'; return; }
         snapshot.forEach(doc => {
           const t = doc.data();
           list.innerHTML += `
             <div class="tournament-card">
-              <div class="tournament-info">
-                <h3>🏆 ${t.name}</h3>
-                <p>${t.startDate} - ${t.endDate}</p>
-              </div>
-              <span class="tournament-status status-${t.status}">${t.status}</span>
+              <h3>🏆 ${t.name}</h3>
+              <p>${t.startDate} - ${t.endDate}</p>
+              <span>${t.status}</span>
               <button class="btn-danger" onclick="deleteTournament('${doc.id}')">Delete</button>
             </div>
           `;
@@ -374,21 +352,16 @@
       });
     }
 
-    // SAVE ANNOUNCEMENT
     document.getElementById('announcementForm').addEventListener('submit', function(e) {
       e.preventDefault();
       db.collection('content').doc('announcement').set({
         imageUrl: announcementImageData || null,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(() => {
-        alert('✅ Banner saved!');
-      });
+      }).then(() => alert('✅ Banner saved!'));
     });
 
-    // SAVE TEAM WITH ORDER
     document.getElementById('teamForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      
       const snapshot = await db.collection('teams').orderBy('order', 'desc').limit(1).get();
       let maxOrder = 0;
       snapshot.forEach(doc => { maxOrder = doc.data().order || 0; });
@@ -410,7 +383,6 @@
       });
     });
 
-    // SAVE CERTIFICATE
     document.getElementById('certificateForm').addEventListener('submit', function(e) {
       e.preventDefault();
       db.collection('certificates').add({
@@ -428,7 +400,6 @@
       });
     });
 
-    // SAVE TOURNAMENT
     document.getElementById('tournamentForm').addEventListener('submit', function(e) {
       e.preventDefault();
       db.collection('tournaments').add({
@@ -446,31 +417,15 @@
       });
     });
 
-    // DELETE FUNCTIONS
-    function deleteTeam(id) { if (confirm('Delete team?')) db.collection('teams').doc(id).delete().then(() => loadTeams()); }
-    function deleteCertificate(id) { if (confirm('Delete certificate?')) db.collection('certificates').doc(id).delete().then(() => loadCertificates()); }
-    function deleteTournament(id) { if (confirm('Delete tournament?')) db.collection('tournaments').doc(id).delete().then(() => loadTournaments()); }
+    function deleteTeam(id) { if (confirm('Delete?')) db.collection('teams').doc(id).delete().then(() => loadTeams()); }
+    function deleteCertificate(id) { if (confirm('Delete?')) db.collection('certificates').doc(id).delete().then(() => loadCertificates()); }
+    function deleteTournament(id) { if (confirm('Delete?')) db.collection('tournaments').doc(id).delete().then(() => loadTournaments()); }
 
-    // MODAL FUNCTIONS
-    function openTeamModal() {
-      document.getElementById('teamModal').style.display = 'block';
-      document.getElementById('teamForm').reset();
-      teamLogoData = null;
-      document.getElementById('teamLogoPreview').style.display = 'none';
-    }
-    function openCertificateModal() {
-      document.getElementById('certificateModal').style.display = 'block';
-      document.getElementById('certificateForm').reset();
-      certImageData = null;
-      document.getElementById('certImagePreview').style.display = 'none';
-    }
-    function openTournamentModal() {
-      document.getElementById('tournamentModal').style.display = 'block';
-      document.getElementById('tournamentForm').reset();
-    }
+    function openTeamModal() { document.getElementById('teamModal').style.display = 'block'; document.getElementById('teamForm').reset(); teamLogoData = null; document.getElementById('teamLogoPreview').style.display = 'none'; }
+    function openCertificateModal() { document.getElementById('certificateModal').style.display = 'block'; document.getElementById('certificateForm').reset(); certImageData = null; document.getElementById('certImagePreview').style.display = 'none'; }
+    function openTournamentModal() { document.getElementById('tournamentModal').style.display = 'block'; document.getElementById('tournamentForm').reset(); }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    // SECTION SWITCHING
     function showSection(sectionName, event) {
       document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
       document.getElementById(sectionName).classList.add('active');
@@ -479,14 +434,12 @@
       document.getElementById('pageTitle').textContent = sectionName.charAt(0).toUpperCase() + sectionName.slice(1);
     }
 
-    // LOGOUT
     function logout() {
       localStorage.removeItem('daksSystemSession');
       auth.signOut().catch(() => {});
       window.location.replace('login.html');
     }
 
-    // INITIALIZE
     loadTeams();
     loadCertificates();
     loadTournaments();
