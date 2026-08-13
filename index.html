@@ -39,35 +39,37 @@
     <!-- Navigation -->
     <nav class="navbar">
       <div class="logo-area">
-        <img src="DSLOGO.jpg" alt="DS Logo" style="width:40px;height:40px;object-fit:contain;border-radius:8px;" onerror="this.style.display='none'">
+        <img src="DSLOGO.jpg" alt="DS Logo" style="width:45px;height:45px;object-fit:contain;border-radius:8px;" onerror="this.style.display='none'">
         <div class="logo-text">DAKS<span>.</span></div>
       </div>
       <div class="nav-links">
         <a href="#teams" class="nav-link">Teams</a>
         <a href="#achievements" class="nav-link">Achievements</a>
-        <a href="#tournaments" class="nav-link">Tournaments</a>
+        <a href="tournaments.html" class="nav-link">Tournaments</a>
+        <a href="#register" class="nav-link">Register</a>
       </div>
       <div class="nav-actions">
+        <div class="founder-badge">FOUNDER · MYLYKES</div>
         <a href="admin.html" class="login-link" id="adminPanelBtn" style="display:none;">Admin Panel</a>
         <a href="login.html" class="login-link" id="loginBtn">Admin</a>
       </div>
     </nav>
 
-    <!-- Hero Banner - FULLY VISIBLE ON MOBILE -->
+    <!-- Hero Banner -->
     <header class="hero">
-      <img src="DSBANNER.jpg" alt="DAKS SYSTEM Banner" style="width:100%;height:auto;max-height:400px;object-fit:contain;display:block;border-radius:0 0 1rem 1rem;" onerror="this.style.display='none'">
+      <img src="DSBANNER.jpg" alt="DAKS SYSTEM Banner" style="width:100%;height:auto;max-height:400px;object-fit:contain;display:block;" onerror="this.style.display='none'">
     </header>
 
     <!-- Hero Content -->
-    <div style="text-align:center;padding:1.5rem;">
-      <h1 style="color:#f5f1e6;font-size:clamp(1.5rem, 4vw, 2.5rem);">FORGE YOUR <span style="color:#d4af37;">LEGACY</span></h1>
-      <p style="color:#bdb6a4;margin-top:0.5rem;font-size:clamp(0.9rem, 2vw, 1.1rem);">Six elite teams. One vision.</p>
+    <div style="text-align:center;padding:2rem;">
+      <h1 style="color:#f5f1e6;font-size:clamp(1.5rem,4vw,2.5rem);">FORGE YOUR <span style="color:#d4af37;">LEGACY</span></h1>
+      <p style="color:#bdb6a4;margin-top:0.5rem;">Six elite teams. One vision.</p>
       <button onclick="scrollToSection('register')" class="cta-button" style="margin-top:1rem;">
         <i class="fas fa-trophy"></i> Register for Tournament
       </button>
     </div>
 
-    <!-- Teams -->
+    <!-- Teams Section -->
     <section id="teams">
       <h2 class="section-title">TEAM BANNERS</h2>
       <div class="teams-grid" id="teamsGrid">
@@ -77,32 +79,13 @@
 
     <!-- Achievements -->
     <section id="achievements">
-      <h2 class="section-title">ACHIEVEMENTS</h2>
+      <h2 class="section-title">ACHIEVEMENTS & CERTIFICATES</h2>
       <div class="achievements-container" id="achievementsContainer">
-        <p style="color:#999;">Loading...</p>
+        <p style="color:#999;">Loading achievements...</p>
       </div>
     </section>
 
-    <!-- Tournaments -->
-    <section id="tournaments">
-      <h2 class="section-title">TOURNAMENT BRACKETS</h2>
-      <div class="tournament-tabs">
-        <button class="tab-btn active" onclick="switchTournament('current', event)">Current</button>
-        <button class="tab-btn" onclick="switchTournament('upcoming', event)">Upcoming</button>
-        <button class="tab-btn" onclick="switchTournament('past', event)">Past</button>
-      </div>
-      <div id="current-tournament" class="tournament-content active">
-        <div id="currentBracket"><p style="color:#999;">Loading...</p></div>
-      </div>
-      <div id="upcoming-tournament" class="tournament-content">
-        <div id="upcomingTournament"><p style="color:#999;">Loading...</p></div>
-      </div>
-      <div id="past-tournament" class="tournament-content">
-        <div id="pastTournament"><p style="color:#999;">Loading...</p></div>
-      </div>
-    </section>
-
-    <!-- Registration - CENTERED -->
+    <!-- Registration -->
     <section id="register" style="text-align:center;">
       <h2 class="section-title" style="text-align:left;">TOURNAMENT REGISTRATION</h2>
       <div style="display:flex;justify-content:center;align-items:center;min-height:150px;">
@@ -122,7 +105,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="footer">© 2023 DAKS SYSTEM</footer>
+    <footer class="footer">© 2025 DAKS SYSTEM</footer>
   </div>
 
   <!-- Team Modal -->
@@ -144,6 +127,7 @@
       }
     }
 
+    // Load Teams
     async function loadTeams() {
       const grid = document.getElementById('teamsGrid');
       try {
@@ -178,6 +162,7 @@
       }
     }
 
+    // Open Team Modal
     function openTeamModal(teamId) {
       const team = allTeams.find(t => t.id === teamId);
       if (!team) return;
@@ -189,9 +174,8 @@
         ${team.logoUrl ? `<img src="${team.logoUrl}" style="width:100%;height:200px;object-fit:contain;background:#0b0b0b;border-radius:10px;margin:1rem 0;">` : ''}
         <p><strong>Captain:</strong> ${team.captain}</p>
         <p><strong>Wins:</strong> ${team.wins || 0}</p>
-        <p><strong>Rating:</strong> ⭐ ${team.rating || 0}</p>
         <h3 style="color:#d4af37;margin-top:1rem;">👥 TEAM PLAYERS</h3>
-        ${members.length > 0 ? members.map((p, i) => `<div style="padding:0.5rem;background:#111;border-radius:0.3rem;margin-bottom:0.3rem;color:white;"><span style="color:#d4af37;">${i + 1}.</span> ${p}</div>`).join('') : '<p style="color:#999;">No players</p>'}
+        ${members.length > 0 ? members.map((p, i) => `<div style="padding:0.5rem;background:#111;border-radius:0.3rem;margin-bottom:0.3rem;color:white;"><span style="color:#d4af37;">${i + 1}.</span> ${p}</div>`).join('') : '<p style="color:#999;">No players listed</p>'}
       `;
       modal.style.display = 'block';
     }
@@ -206,12 +190,13 @@
       }
     }
 
+    // Load Achievements/Certificates
     async function loadAchievements() {
       const container = document.getElementById('achievementsContainer');
       try {
         const snapshot = await db.collection('certificates').orderBy('createdAt', 'desc').get();
         if (snapshot.empty) {
-          container.innerHTML = '<p style="color:#999;">No achievements yet</p>';
+          container.innerHTML = '<p style="color:#999;">Tournament winners will appear here!</p>';
           return;
         }
         container.innerHTML = '';
@@ -220,10 +205,10 @@
           const card = document.createElement('div');
           card.className = 'achievement-card';
           card.innerHTML = `
-            <i class="fas fa-trophy" style="font-size:2rem;color:#d4af37;"></i>
+            ${cert.imageUrl ? `<img src="${cert.imageUrl}" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;">` : '<i class="fas fa-trophy" style="font-size:2rem;color:#d4af37;"></i>'}
             <div>
               <h3 style="color:#d4af37;">${cert.title}</h3>
-              <p style="color:white;">🏆 ${cert.teamName}</p>
+              <p style="color:white;font-weight:700;">🏆 ${cert.teamName}</p>
             </div>
           `;
           container.appendChild(card);
@@ -233,86 +218,18 @@
       }
     }
 
-    async function loadTournaments() {
-      const pastDiv = document.getElementById('pastTournament');
-      const upcomingDiv = document.getElementById('upcomingTournament');
-      const currentBracket = document.getElementById('currentBracket');
-      
-      try {
-        const snapshot = await db.collection('tournaments').get();
-        if (snapshot.empty) {
-          pastDiv.innerHTML = '<p style="color:#999;">No tournaments</p>';
-          upcomingDiv.innerHTML = '<p style="color:#999;">No upcoming</p>';
-          currentBracket.innerHTML = '<p style="color:#999;">No active</p>';
-          return;
-        }
-        
-        const tournaments = [];
-        snapshot.forEach(doc => tournaments.push({ id: doc.id, ...doc.data() }));
-        
-        const completed = tournaments.filter(t => t.status === 'completed');
-        if (completed.length > 0) {
-          pastDiv.innerHTML = completed.map(t => {
-            let url = '';
-            if (t.challongeUrl) {
-              url = t.challongeUrl.trim().replace(/\/$/, '');
-              if (!url.includes('/module')) url += '/module';
-            }
-            return `
-              <div style="background:#111;border:2px solid #d4af37;border-radius:1rem;overflow:hidden;margin-bottom:1rem;">
-                <div style="padding:0.75rem;text-align:center;border-bottom:2px solid #d4af37;background:#1a1a1a;">
-                  <h3 style="color:#d4af37;">🏆 ${t.name}</h3>
-                </div>
-                ${url ? `<iframe src="${url}" width="100%" height="400" frameborder="0" style="display:block;background:white;border:none;"></iframe>` : '<p style="color:#ff6b7a;text-align:center;padding:1rem;">No bracket URL</p>'}
-              </div>
-            `;
-          }).join('');
-        }
-        
-        const upcoming = tournaments.filter(t => t.status === 'upcoming');
-        upcomingDiv.innerHTML = upcoming.length > 0 ? `<h3 style="color:#d4af37;">${upcoming[0].name}</h3><p style="color:#999;">Starts: ${upcoming[0].startDate}</p>` : '<p style="color:#999;">No upcoming</p>';
-        
-        const active = tournaments.filter(t => t.status === 'active');
-        if (active.length > 0 && active[0].challongeUrl) {
-          let url = active[0].challongeUrl.trim().replace(/\/$/, '');
-          if (!url.includes('/module')) url += '/module';
-          currentBracket.innerHTML = `
-            <div style="background:#111;border:2px solid #d4af37;border-radius:1rem;overflow:hidden;">
-              <div style="padding:0.75rem;text-align:center;border-bottom:2px solid #d4af37;background:#1a1a1a;">
-                <h3 style="color:#d4af37;">🏆 ${active[0].name}</h3>
-              </div>
-              <iframe src="${url}" width="100%" height="500" frameborder="0" style="display:block;background:white;border:none;"></iframe>
-            </div>
-          `;
-        } else {
-          currentBracket.innerHTML = '<p style="color:#999;">No active bracket</p>';
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
     function scrollToSection(id) {
       document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
     }
 
-    function switchTournament(tab, event) {
-      document.querySelectorAll('.tournament-content').forEach(c => c.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById(tab + '-tournament').classList.add('active');
-      if (event && event.target) event.target.classList.add('active');
-    }
-
-    // INITIALIZE
+    // Initialize
     checkSession();
     loadTeams();
     loadAchievements();
-    loadTournaments();
 
-    // REAL-TIME AUTO-RELOAD
+    // Real-time auto-reload
     db.collection('teams').onSnapshot(() => loadTeams());
     db.collection('certificates').onSnapshot(() => loadAchievements());
-    db.collection('tournaments').onSnapshot(() => loadTournaments());
   </script>
 </body>
 </html>
